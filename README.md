@@ -4,8 +4,9 @@ Application de gestion RH pour hôtel (employés, pointages, absences, compteurs
 
 ## Prérequis
 
-- JDK 22
-- Rien d'autre à installer : Maven est fourni via le wrapper (`mvnw` / `mvnw.cmd`), et la base de données H2 est embarquée dans l'application.
+- JDK 21+ (testé avec JDK 22)
+- Rien d'autre à installer pour lancer l'appli : Maven est fourni via le wrapper (`mvnw` / `mvnw.cmd`), la base de données H2 est embarquée, et le CSS (Tailwind) est déjà compilé dans `static/css/app.css`.
+- Node.js (optionnel) : uniquement nécessaire si tu modifies les styles Tailwind (voir [Frontend / Tailwind CSS](#frontend--tailwind-css)).
 
 ## Lancer le projet
 
@@ -20,6 +21,29 @@ L'application démarre sur **http://localhost:8099** (port fixé dans `applicati
 Au démarrage, tout se fait automatiquement, sans étape manuelle :
 1. Hibernate crée/adapte les tables à partir des entités (`ddl-auto: update`).
 2. `data.sql` réinitialise et réinsère un jeu de données de démo (5 employés, compteurs, demandes d'absence, pointages).
+
+## Fonctionnalités
+
+| Page | Route | Description |
+|---|---|---|
+| Accueil | `GET /` | Page d'atterrissage |
+| Liste des employés | `GET /liste-employe` | Consultation, activation/désactivation, édition et suppression des employés |
+| Ajout d'un employé | `GET/POST /ajout-employe` | Formulaire de création d'un employé (poste, type de contrat...) |
+| Congés payés | `GET /conge-paye` | Compteurs congés/RTT/heures sup par employé, avec historique N-1 |
+| Pointages | `GET /pointages` | Pointage des employés actifs (entrée/sortie) et historique paginé |
+
+Endpoints REST additionnels utilisés en AJAX par les pages ci-dessus : `DELETE /delete-employe/{id}`, `PATCH /toggle-actif-employe/{id}`, `PUT /edit-employe/{id}`, `POST /pointer-employe/{employeId}`.
+
+## Frontend / Tailwind CSS
+
+Le CSS est généré par Tailwind CLI à partir de `tailwind/input.css` vers `src/main/resources/static/css/app.css`. Le fichier généré est committé, donc **aucune étape n'est requise pour lancer l'appli**. Pour modifier les styles :
+
+```bash
+npm install
+npm run watch:css   # regénère app.css à chaque modification
+# ou, pour une build unique minifiée :
+npm run build:css
+```
 
 ## Base de données (H2)
 
@@ -60,11 +84,22 @@ Dans IntelliJ, veiller à utiliser le champ **URL unique** (et non les champs s�
 
 ```
 src/main/java/com/cesarhotel/roomster/
-├── controller/   contrôleurs Spring MVC
+├── controller/   contrôleurs Spring MVC (Home, Employe, EmployeConge, Pointage)
 ├── model/        entités JPA (Employe, Pointage, CompteurEmploye, DemandeAbsence...)
 ├── repository/   repositories Spring Data JPA
 ├── service/      logique métier
-└── dtos/         objets de transfert
+├── dtos/         objets de transfert
+└── mapper/       mappers MapStruct entité <-> DTO
+
+src/main/resources/
+├── application.yaml
+├── data.sql              jeu de données de démo
+├── templates/            vues Thymeleaf (accueil, employe/, pointage/, fragments/)
+└── static/
+    ├── css/app.css       CSS généré par Tailwind (voir Frontend / Tailwind CSS)
+    └── js/                employe.js, pointage.js
+
+tailwind/input.css         source Tailwind
 ```
 
 ## Tests
