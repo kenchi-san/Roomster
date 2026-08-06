@@ -61,11 +61,21 @@ public class EmployeController {
     }
 
     @GetMapping("/liste-employe")
-    public String listEmploye(Model model) {
-        List<EmployeDto> employes = employeMapper.toDtoList(employeRepository.findAll());
+    public String listEmployeActifs(Model model) {
+        return listeParStatutActif(true, model);
+    }
+
+    @GetMapping("/liste-employe/inactifs")
+    public String listEmployeInactifs(Model model) {
+        return listeParStatutActif(false, model);
+    }
+
+    private String listeParStatutActif(boolean actif, Model model) {
+        List<EmployeDto> employes = employeMapper.toDtoList(employeRepository.findByActifOrderByNomAscPrenomAsc(actif));
         model.addAttribute("employes", employes);
         model.addAttribute("postes", Poste.values());
         model.addAttribute("typesContrat", TypeContrat.values());
+        model.addAttribute("afficherInactifs", !actif);
         return "employe/liste";
     }
 

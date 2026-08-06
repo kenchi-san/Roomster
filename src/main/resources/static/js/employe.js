@@ -1,5 +1,3 @@
-let showOnlyInactifs = false;
-
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('tbody tr').forEach(row => {
         const id = row.dataset.id;
@@ -22,21 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         row.querySelector('.btn-toggle-actif')
             .addEventListener('click', () => toggleActif(id, row));
     });
-
-    const btnFilterInactifs = document.getElementById('btn-filter-inactifs');
-    btnFilterInactifs.addEventListener('click', () => {
-        showOnlyInactifs = !showOnlyInactifs;
-        btnFilterInactifs.textContent = showOnlyInactifs ? 'Voir tous les employés' : 'Voir les inactifs';
-        applyInactifFilter();
-    });
 });
-
-function applyInactifFilter() {
-    document.querySelectorAll('tbody tr').forEach(row => {
-        const estActif = row.querySelector('[data-view="actif"]').textContent.trim() === 'Oui';
-        row.classList.toggle('hidden', showOnlyInactifs && estActif);
-    });
-}
 
 function setEditMode(row, editing) {
     row.querySelectorAll('[data-view]').forEach(el => el.classList.toggle('hidden', editing));
@@ -122,10 +106,10 @@ function toggleActif(id, row) {
             }
             return response.json();
         })
-        .then(updated => {
-            updateActifDisplay(row, updated.actif);
-            updateDateSortie(row, updated.dateSortie);
-            applyInactifFilter();
+        .then(() => {
+            // L'employé change de statut : il quitte la liste affichée (actifs ou inactifs)
+            // pour rejoindre l'autre page.
+            row.remove();
         })
         .catch(error => alert(error.message || 'Le changement de statut a échoué.'));
 }

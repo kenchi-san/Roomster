@@ -3,11 +3,11 @@
 Gestion du personnel pour un hôtel : heures, pointages, absences, compteurs.
 Chaque fonctionnalité est décrite avec son comportement attendu, ses règles et les points à ne pas oublier.
 
-## État d'avancement (audité sur le code au 2026-08-02)
+## État d'avancement (audité sur le code au 2026-08-07)
 
 | # | Fonctionnalité | Statut |
 |---|---|---|
-| F1 | Gestion des employés | 🚧 Partiel (2 points bloquants corrigés depuis le 30/07) |
+| F1 | Gestion des employés | 🚧 Partiel (filtre actifs/inactifs passé en pages serveur le 07/08 ; suppression physique toujours en place) |
 | F2 | Pointage (badge entrée/sortie) | 🚧 Partiel *(nouveau : contrôleur/service/repository implémentés depuis le 30/07)* |
 | F3 | Calcul des heures | ❌ Non commencé |
 | F4 | Demandes d'absence | 🚧 Partiel (logique en base non exposée, inchangé) |
@@ -26,7 +26,7 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 **Comportement attendu**
 - [x] Créer, consulter, modifier une fiche employé (nom, prénom, email, poste, type de contrat, date d'entrée, durée hebdo contractuelle).
 - [x] Désactiver un employé qui quitte l'hôtel (date de sortie + actif = false) plutôt que le supprimer. ✅ *corrigé depuis le 30/07 : `toggle-actif-employe` renseigne désormais `dateSortie` à la désactivation et la remet à `null` à la réactivation.* Reste contraire à la règle : un bouton "Supprimer" fait toujours une suppression physique réelle.
-- [ ] Lister les employés actifs, filtrer par poste. *(toujours pas de filtre côté serveur ; un filtre "voir les inactifs" a été ajouté côté client en JS — masque les lignes déjà chargées, ne remplace pas un vrai filtre serveur, et il n'y a toujours aucun filtre par poste)*
+- [x] Lister les employés actifs, filtrer par poste. ✅ *corrigé depuis le 02/08 : `/liste-employe` (actifs) et `/liste-employe/inactifs` sont désormais deux pages distinctes, filtrées côté serveur via `findByActifOrderByNomAscPrenomAsc` ; l'ancien filtre JS côté client a été retiré. Un employé (dés)activé disparaît de la page courante (il bascule sur l'autre liste). Reste : toujours aucun filtre par poste.*
 
 **Règles métier**
 - [x] L'email est unique : c'est le futur identifiant de connexion. *(contrainte unique en base ; toujours non re-vérifiée côté service lors d'une modification — `updateEntityFromDto` ne relance pas `existsByEmail`)*
@@ -174,7 +174,7 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 
 ## Ordre de réalisation conseillé
 
-1. F1 Employés (le socle, CRUD simple pour prendre en main la stack) — 🚧 date de sortie et validation corrigées ; reste : suppression physique à retirer, filtre serveur actif/poste, re-check email à la modification
+1. F1 Employés (le socle, CRUD simple pour prendre en main la stack) — 🚧 date de sortie, validation et filtre actifs/inactifs (pages serveur) corrigés ; reste : suppression physique à retirer, filtre par poste, re-check email à la modification
 2. F2 Pointage (la mécanique badge + corrections) — 🚧 badge entrée/sortie fonctionnel ; reste : vérifier l'employé actif, correction manager avec commentaire obligatoire, vues jour/semaine
 3. F3 Calcul des heures (avec tests unitaires solides — le module critique) — ❌ à faire
 4. F5 Compteurs (structure + mouvements) — 🚧 structure et lecture ok, débit/crédit et historique à raccorder

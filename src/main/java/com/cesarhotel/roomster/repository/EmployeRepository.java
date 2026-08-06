@@ -10,5 +10,6 @@ public interface EmployeRepository extends JpaRepository<Employe, Long> {
 
     boolean existsByEmail(String email);
 
+    List<Employe> findByActifOrderByNomAscPrenomAsc(boolean actif);
 
 }
