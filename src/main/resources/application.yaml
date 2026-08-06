@@ -13,6 +13,14 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  # Sert les templates/CSS/JS directement depuis les sources : les changements
+  # sont visibles au simple F5, sans recompilation ni restart devtools.
+  # A retirer/déplacer derrière un profil "dev" avant de packager un jar de prod.
+  thymeleaf:
+    prefix: file:src/main/resources/templates/
+  web:
+    resources:
+      static-locations: file:src/main/resources/static/
   jpa:
     hibernate:
       ddl-auto: update
