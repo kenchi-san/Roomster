@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ajouter un employé</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="min-h-screen bg-slate-50">
+<header th:replace="~{fragments/nav :: nav}"></header>
+
+<main class="mx-auto max-w-xl px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Ajouter un employé</h1>
+
+    <form th:action="@{/ajout-employe}" th:object="${employe}" method="post"
+          class="mt-6 space-y-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+        <div>
+            <label for="nom" class="block text-sm font-medium text-slate-700">Nom</label>
+            <input type="text" id="nom" th:field="*{nom}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}"></span>
+        </div>
+
+        <div>
+            <label for="prenom" class="block text-sm font-medium text-slate-700">Prénom</label>
+            <input type="text" id="prenom" th:field="*{prenom}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}"></span>
+        </div>
+
+        <div>
+            <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
+            <input type="email" id="email" th:field="*{email}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+        </div>
+
+        <div>
+            <label for="poste" class="block text-sm font-medium text-slate-700">Poste</label>
+            <select id="poste" th:field="*{poste}"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+                <option value="">-- Choisir --</option>
+                <option th:each="p : ${postes}" th:value="${p}" th:text="${p}"></option>
+            </select>
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('poste')}" th:errors="*{poste}"></span>
+        </div>
+
+        <div>
+            <label for="typeContrat" class="block text-sm font-medium text-slate-700">Type de contrat</label>
+            <select id="typeContrat" th:field="*{typeContrat}"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+                <option value="">-- Choisir --</option>
+                <option th:each="t : ${typesContrat}" th:value="${t}" th:text="${t}"></option>
+            </select>
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('typeContrat')}" th:errors="*{typeContrat}"></span>
+        </div>
+
+        <div>
+            <label for="dateEntree" class="block text-sm font-medium text-slate-700">Date d'entrée</label>
+            <input type="date" id="dateEntree" th:field="*{dateEntree}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('dateEntree')}" th:errors="*{dateEntree}"></span>
+        </div>
+
+        <div>
+            <label for="dureeHebdoHeures" class="block text-sm font-medium text-slate-700">Durée hebdomadaire (heures)</label>
+            <input type="number" step="0.5" id="dureeHebdoHeures" th:field="*{dureeHebdoHeures}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('dureeHebdoHeures')}" th:errors="*{dureeHebdoHeures}"></span>
+        </div>
+
+        <button type="submit" class="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700">
+            Créer
+        </button>
+    </form>
+</main>
+</body>
+</html>

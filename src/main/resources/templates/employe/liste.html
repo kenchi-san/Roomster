@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Liste des employés</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="min-h-screen bg-slate-50">
+<header th:replace="~{fragments/nav :: nav}"></header>
+
+<main class="mx-auto max-w-6xl px-4 py-8">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-slate-900">Liste des employés</h1>
+        <div class="flex gap-2">
+            <button type="button" id="btn-filter-inactifs"
+                    class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
+                Voir les inactifs
+            </button>
+            <a th:href="@{/ajout-employe}"
+               class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700">
+                + Ajouter un employé
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+            <tr>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Nom</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Prénom</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Email</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Poste</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Contrat</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Date d'entrée</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Actif</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            <tr th:each="employe : ${employes}" th:attr="data-id=${employe.id}" class="hover:bg-slate-50">
+                <td class="px-4 py-3">
+                    <span data-view="nom" th:text="${employe.nom}" class="text-slate-900"></span>
+                    <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                           data-field="nom" type="text" th:value="${employe.nom}">
+                </td>
+                <td class="px-4 py-3">
+                    <span data-view="prenom" th:text="${employe.prenom}" class="text-slate-900"></span>
+                    <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                           data-field="prenom" type="text" th:value="${employe.prenom}">
+                </td>
+                <td class="px-4 py-3">
+                    <span data-view="email" th:text="${employe.email}" class="text-slate-600"></span>
+                    <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                           data-field="email" type="email" th:value="${employe.email}">
+                </td>
+                <td class="px-4 py-3">
+                    <span data-view="poste" th:text="${employe.poste}" class="text-slate-600"></span>
+                    <select class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                            data-field="poste">
+                        <option th:each="p : ${postes}" th:value="${p}" th:text="${p}" th:selected="${p == employe.poste}"></option>
+                    </select>
+                </td>
+                <td class="px-4 py-3">
+                    <span data-view="typeContrat" th:text="${employe.typeContrat}" class="text-slate-600"></span>
+                    <select class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                            data-field="typeContrat">
+                        <option th:each="t : ${typesContrat}" th:value="${t}" th:text="${t}" th:selected="${t == employe.typeContrat}"></option>
+                    </select>
+                </td>
+                <td class="px-4 py-3">
+                    <span data-view="dateEntree" th:text="${employe.dateEntree}" class="text-slate-600"></span>
+                    <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                           data-field="dateEntree" type="date" th:value="${employe.dateEntree}"
+                           th:attr="max=${employe.dateSortie}">
+                </td>
+                <td class="px-4 py-3">
+                    <span data-view="actif" th:text="${employe.actif} ? 'Oui' : 'Non'"
+                          th:class="${employe.actif}
+                              ? 'inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700'
+                              : 'inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600'"></span>
+                </td>
+                <td class="px-4 py-3">
+                    <input class="edit" data-field="dateSortie" type="hidden" th:value="${employe.dateSortie}">
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" class="btn-toggle-actif rounded-md px-3 py-1 text-xs font-medium text-amber-600 transition hover:bg-amber-50"
+                                th:text="${employe.actif} ? 'Désactiver' : 'Activer'"></button>
+                        <button type="button" class="btn-edit-employe rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Modifier</button>
+                        <button type="button" class="btn-save-employe hidden rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-emerald-500">Enregistrer</button>
+                        <button type="button" class="btn-cancel-employe hidden rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Annuler</button>
+                        <button type="button" class="btn-delete-employe rounded-md px-3 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50">Supprimer</button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script th:src="@{/js/employe.js}"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<header th:fragment="nav" class="border-b border-slate-200 bg-slate-900">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <a th:href="@{/}" class="text-lg font-semibold tracking-tight text-white">Roomster</a>
+        <nav class="flex gap-6 text-sm font-medium text-slate-300">
+            <a th:href="@{/liste-employe}" class="transition hover:text-white">Employés</a>
+            <a th:href="@{/ajout-employe}" class="transition hover:text-white">Ajouter</a>
+            <a th:href="@{/conge-paye}" class="transition hover:text-white">Congés</a>
+            <a th:href="@{/pointages}" class="transition hover:text-white">Pointages</a>
+        </nav>
+    </div>
+</header>

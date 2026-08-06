@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pointages</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="min-h-screen bg-slate-50">
+<header th:replace="~{fragments/nav :: nav}"></header>
+
+<main class="mx-auto max-w-6xl px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Pointages</h1>
+
+    <div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+            <tr>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Employé</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Statut</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Action</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            <tr th:each="employe : ${employes}" th:attr="data-id=${employe.id}" class="hover:bg-slate-50">
+                <td class="px-4 py-3 text-slate-900" th:text="${employe.prenom + ' ' + employe.nom}"></td>
+                <td class="px-4 py-3">
+                    <span data-view="pointage-statut" class="text-slate-600"
+                          th:text="${pointagesOuverts.get(employe.id) != null
+                              ? 'Entré à ' + #temporals.format(pointagesOuverts.get(employe.id), 'HH:mm')
+                              : 'Non pointé'}"></span>
+                </td>
+                <td class="px-4 py-3">
+                    <button type="button" class="btn-pointer rounded-md bg-slate-900 px-3 py-1 text-xs font-medium text-white transition hover:bg-slate-700"
+                            th:text="${pointagesOuverts.get(employe.id) != null ? 'Pointer la sortie' : 'Pointer l''entrée'}"></button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="mt-10 text-xl font-bold text-slate-900">Historique</h2>
+    <div class="mt-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50">
+                <tr>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Employé</th>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Entrée</th>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Sortie</th>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Commentaire</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                <tr th:each="pointage : ${historique}" class="hover:bg-slate-50">
+                    <td class="px-4 py-3 text-slate-900" th:text="${pointage.employe.prenom + ' ' + pointage.employe.nom}"></td>
+                    <td class="px-4 py-3 text-slate-600" th:text="${#temporals.format(pointage.entree, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td class="px-4 py-3 text-slate-600"
+                        th:text="${pointage.sortie != null ? #temporals.format(pointage.sortie, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                    <td class="px-4 py-3 text-slate-500" th:text="${pointage.commentaire ?: '—'}"></td>
+                </tr>
+                <tr th:if="${historique.totalElements == 0}">
+                    <td class="px-4 py-3 text-slate-400" colspan="4">Aucun pointage enregistré.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${historique.totalElements > 0}"
+             class="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-sm text-slate-600">
+            <span th:text="'Page ' + (${historique.number} + 1) + ' sur ' + ${historique.totalPages}"></span>
+            <div class="flex gap-2">
+                <a th:if="${!historique.first}" th:href="@{/pointages(page=${historique.number - 1})}"
+                   class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Précédent</a>
+                <span th:if="${historique.first}"
+                      class="rounded-md border border-slate-200 px-3 py-1 font-medium text-slate-300">Précédent</span>
+
+                <a th:if="${!historique.last}" th:href="@{/pointages(page=${historique.number + 1})}"
+                   class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Suivant</a>
+                <span th:if="${historique.last}"
+                      class="rounded-md border border-slate-200 px-3 py-1 font-medium text-slate-300">Suivant</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/pointage.js}"></script>
+</body>
+</html>
