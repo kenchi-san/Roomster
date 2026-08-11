@@ -63,4 +63,17 @@ public class PointageService {
 
         return Optional.of(pointageRepository.save(pointage));
     }
+
+    public Optional<Employe> getEmployeConnecte(String email) {
+        return employeRepository.findByUserEmail(email);
+    }
+
+    public Page<Pointage> getHistoriquePersonnel(Long employeId, int page) {
+        return pointageRepository.findByEmployeId(employeId,
+                PageRequest.of(page, TAILLE_PAGE_HISTORIQUE, Sort.by(Sort.Direction.DESC, "entree")));
+    }
+
+    public Optional<Pointage> pointerConnecte(String email) {
+        return getEmployeConnecte(email).flatMap(employe -> pointer(employe.getId()));
+    }
 }

@@ -3,6 +3,7 @@ package com.cesarhotel.roomster.service;
 import com.cesarhotel.roomster.dtos.EmployeFormDto;
 import com.cesarhotel.roomster.mapper.EmployeMapper;
 import com.cesarhotel.roomster.model.Employe;
+import com.cesarhotel.roomster.model.Role;
 import com.cesarhotel.roomster.repository.EmployeRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class EmployeService {
         Employe employe = employeMapper.toEntity(dto);
         // Mot de passe temporaire tant qu'il n'y a pas de flux d'invitation/définition de mot de passe.
         employe.getUser().setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        employe.getUser().setRole(Role.SALARIE);
         return employeRepository.save(employe);
     }
 }

@@ -9,4 +9,6 @@ public interface CompteurEmployeRepository extends JpaRepository<CompteurEmploye
 
     List<CompteurEmploye> findAllByOrderByEmploye_User_NomAscEmploye_User_PrenomAscAnneeDesc();
 
+    List<CompteurEmploye> findByEmploye_User_EmailOrderByAnneeDesc(String email);
+
 }
