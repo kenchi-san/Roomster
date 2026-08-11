@@ -1,5 +1,10 @@
 let showOnlyInactifs = false;
 
+function csrfHeader() {
+    const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+    return match ? { 'X-XSRF-TOKEN': decodeURIComponent(match[1]) } : {};
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('tbody tr').forEach(row => {
         const id = row.dataset.id;
@@ -70,7 +75,7 @@ function deleteEmploye(id, row) {
         return;
     }
 
-    fetch(`/delete-employe/${id}`, { method: 'DELETE' })
+    fetch(`/delete-employe/${id}`, { method: 'DELETE', headers: csrfHeader() })
         .then(response => {
             if (response.status === 204) {
                 row.remove();
@@ -91,7 +96,7 @@ function saveEmploye(id, row) {
 
     fetch(`/edit-employe/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeader() },
         body: JSON.stringify(dto)
     })
         .then(response => {
@@ -115,7 +120,7 @@ function saveEmploye(id, row) {
 }
 
 function toggleActif(id, row) {
-    fetch(`/toggle-actif-employe/${id}`, { method: 'PATCH' })
+    fetch(`/toggle-actif-employe/${id}`, { method: 'PATCH', headers: csrfHeader() })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(message => { throw new Error(message || 'toggle failed'); });

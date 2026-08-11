@@ -7,5 +7,8 @@
             <a th:href="@{/conge-paye}" class="transition hover:text-white">Congés</a>
             <a th:href="@{/pointages}" class="transition hover:text-white">Pointages</a>
         </nav>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="text-sm font-medium text-slate-300 transition hover:text-white">Déconnexion</button>
+        </form>
     </div>
 </header>
