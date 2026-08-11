@@ -5,17 +5,18 @@ DELETE FROM compteur_employe;
 DELETE FROM employe;
 DELETE FROM users;
 
--- Comptes utilisateur (nom/prenom/email/password), un par employé
+-- Comptes utilisateur (nom/prenom/email/password/role), un par employé
 -- Mot de passe de démo pour tous les comptes : "password123" (haché en BCrypt)
-INSERT INTO users (id, nom, prenom, email, password) VALUES
-    (1, 'Dupont', 'Jean', 'jean.dupont@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
-    (2, 'Lefevre', 'Marie', 'marie.lefevre@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
-    (3, 'Martin', 'Paul', 'paul.martin@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
-    (4, 'Bernard', 'Sophie', 'sophie.bernard@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
-    (5, 'Petit', 'Lucas', 'lucas.petit@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
-    (6, 'Moreau', 'Camille', 'camille.moreau@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
-    (7, 'Girard', 'Nicolas', 'nicolas.girard@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
-    (8, 'Rousseau', 'Emma', 'emma.rousseau@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq');
+-- Sophie Bernard (DIRECTION) est le seul compte ADMIN de démo ; les autres sont SALARIE.
+INSERT INTO users (id, nom, prenom, email, password, role) VALUES
+    (1, 'Dupont', 'Jean', 'jean.dupont@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'SALARIE'),
+    (2, 'Lefevre', 'Marie', 'marie.lefevre@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'SALARIE'),
+    (3, 'Martin', 'Paul', 'paul.martin@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'SALARIE'),
+    (4, 'Bernard', 'Sophie', 'sophie.bernard@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'ADMIN'),
+    (5, 'Petit', 'Lucas', 'lucas.petit@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'SALARIE'),
+    (6, 'Moreau', 'Camille', 'camille.moreau@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'SALARIE'),
+    (7, 'Girard', 'Nicolas', 'nicolas.girard@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'SALARIE'),
+    (8, 'Rousseau', 'Emma', 'emma.rousseau@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq', 'SALARIE');
 
 ALTER TABLE users ALTER COLUMN id RESTART WITH 9;
 

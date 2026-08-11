@@ -14,20 +14,35 @@
     <p class="mt-2 text-slate-500">Accédez rapidement à vos outils de gestion.</p>
 
     <div class="mt-10 grid gap-4 sm:grid-cols-3">
-        <a th:href="@{/liste-employe}"
+        <a th:if="${isAdmin}" th:href="@{/liste-employe}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
             <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Liste des employés</h2>
             <p class="mt-1 text-sm text-slate-500">Consulter, modifier ou supprimer un employé.</p>
         </a>
-        <a th:href="@{/ajout-employe}"
+        <a th:if="${isAdmin}" th:href="@{/ajout-employe}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
             <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Ajouter un employé</h2>
             <p class="mt-1 text-sm text-slate-500">Créer une nouvelle fiche employé.</p>
         </a>
-        <a th:href="@{/conge-paye}"
+        <a th:if="${isAdmin}" th:href="@{/conge-paye}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
-            <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Congés payés</h2>
-            <p class="mt-1 text-sm text-slate-500">Voir les compteurs CP / RTT.</p>
+            <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Congés payés (RH)</h2>
+            <p class="mt-1 text-sm text-slate-500">Voir les compteurs CP / RTT de tous les employés.</p>
+        </a>
+        <a th:if="${isAdmin}" th:href="@{/pointages}"
+           class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+            <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Pointages (RH)</h2>
+            <p class="mt-1 text-sm text-slate-500">Pointer ou consulter le pointage de tous les employés.</p>
+        </a>
+        <a th:href="@{/mon-pointage}"
+           class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+            <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Ma pointeuse</h2>
+            <p class="mt-1 text-sm text-slate-500">Pointer mon entrée/sortie et voir mon historique.</p>
+        </a>
+        <a th:href="@{/mes-conges}"
+           class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+            <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Mes congés</h2>
+            <p class="mt-1 text-sm text-slate-500">Voir mon solde CP / RTT.</p>
         </a>
     </div>
 </main>

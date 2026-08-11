@@ -23,6 +23,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/css/**", "/js/**", "/h2-console/**").permitAll()
+                        // Gestion RH : réservée à l'admin. /pointer-employe/{id} y est rattaché car
+                        // l'id y est fourni par le client (pointeuse collective, pas d'auto-restriction possible).
+                        .requestMatchers("/liste-employe", "/ajout-employe",
+                                "/delete-employe/**", "/edit-employe/**", "/toggle-actif-employe/**",
+                                "/pointages", "/pointer-employe/**", "/conge-paye").hasRole("ADMIN")
+                        // Espace personnel : accessible à tout utilisateur connecté (admin compris).
+                        .requestMatchers("/mon-pointage", "/mon-pointage/**", "/mes-conges").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form.permitAll())
                 .logout(logout -> logout.permitAll())
