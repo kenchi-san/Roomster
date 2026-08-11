@@ -21,14 +21,9 @@ public class Employe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String nom;
-
-    @Column(nullable = false)
-    private String prenom;
-
-    @Column(nullable = false, unique = true)
-    private String email;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

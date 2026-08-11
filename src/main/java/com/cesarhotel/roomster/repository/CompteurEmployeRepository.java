@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface CompteurEmployeRepository extends JpaRepository<CompteurEmploye, Long> {
 
-    List<CompteurEmploye> findAllByOrderByEmploye_NomAscEmploye_PrenomAscAnneeDesc();
+    List<CompteurEmploye> findAllByOrderByEmploye_User_NomAscEmploye_User_PrenomAscAnneeDesc();
 
 }

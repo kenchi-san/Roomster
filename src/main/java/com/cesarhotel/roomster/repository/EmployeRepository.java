@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface EmployeRepository extends JpaRepository<Employe, Long> {
 
-    boolean existsByEmail(String email);
+    boolean existsByUserEmail(String email);
 
 
 }

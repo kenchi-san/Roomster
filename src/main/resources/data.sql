@@ -3,18 +3,32 @@ DELETE FROM demande_absence;
 DELETE FROM pointage;
 DELETE FROM compteur_employe;
 DELETE FROM employe;
+DELETE FROM users;
+
+-- Comptes utilisateur (nom/prenom/email), un par employé
+INSERT INTO users (id, nom, prenom, email) VALUES
+    (1, 'Dupont', 'Jean', 'jean.dupont@roomster.fr'),
+    (2, 'Lefevre', 'Marie', 'marie.lefevre@roomster.fr'),
+    (3, 'Martin', 'Paul', 'paul.martin@roomster.fr'),
+    (4, 'Bernard', 'Sophie', 'sophie.bernard@roomster.fr'),
+    (5, 'Petit', 'Lucas', 'lucas.petit@roomster.fr'),
+    (6, 'Moreau', 'Camille', 'camille.moreau@roomster.fr'),
+    (7, 'Girard', 'Nicolas', 'nicolas.girard@roomster.fr'),
+    (8, 'Rousseau', 'Emma', 'emma.rousseau@roomster.fr');
+
+ALTER TABLE users ALTER COLUMN id RESTART WITH 9;
 
 -- Employés
 -- duree_hebdo_contrat est un java.time.Duration, persisté par Hibernate en nanosecondes (BIGINT)
-INSERT INTO employe (id, nom, prenom, email, poste, type_contrat, date_entree, date_sortie, duree_hebdo_contrat, actif) VALUES
-    (1, 'Dupont', 'Jean', 'jean.dupont@roomster.fr', 'RECEPTION', 'CDI', '2020-01-15', NULL, 126000000000000, true),
-    (2, 'Lefevre', 'Marie', 'marie.lefevre@roomster.fr', 'HOUSEKEEPING', 'CDI', '2019-03-01', NULL, 126000000000000, true),
-    (3, 'Martin', 'Paul', 'paul.martin@roomster.fr', 'CUISINE', 'CDD', '2023-06-01', NULL, 140400000000000, true),
-    (4, 'Bernard', 'Sophie', 'sophie.bernard@roomster.fr', 'DIRECTION', 'CDI', '2015-09-01', NULL, 126000000000000, true),
-    (5, 'Petit', 'Lucas', 'lucas.petit@roomster.fr', 'MAINTENANCE', 'EXTRA', '2024-01-10', NULL, 72000000000000, true),
-    (6, 'Moreau', 'Camille', 'camille.moreau@roomster.fr', 'SALLE', 'APPRENTI', '2025-09-01', NULL, 108000000000000, true),
-    (7, 'Girard', 'Nicolas', 'nicolas.girard@roomster.fr', 'RECEPTION', 'CDD', '2024-04-01', '2026-06-30', 126000000000000, false),
-    (8, 'Rousseau', 'Emma', 'emma.rousseau@roomster.fr', 'HOUSEKEEPING', 'CDI', '2021-11-08', NULL, 126000000000000, true);
+INSERT INTO employe (id, user_id, poste, type_contrat, date_entree, date_sortie, duree_hebdo_contrat, actif) VALUES
+    (1, 1, 'RECEPTION', 'CDI', '2020-01-15', NULL, 126000000000000, true),
+    (2, 2, 'HOUSEKEEPING', 'CDI', '2019-03-01', NULL, 126000000000000, true),
+    (3, 3, 'CUISINE', 'CDD', '2023-06-01', NULL, 140400000000000, true),
+    (4, 4, 'DIRECTION', 'CDI', '2015-09-01', NULL, 126000000000000, true),
+    (5, 5, 'MAINTENANCE', 'EXTRA', '2024-01-10', NULL, 72000000000000, true),
+    (6, 6, 'SALLE', 'APPRENTI', '2025-09-01', NULL, 108000000000000, true),
+    (7, 7, 'RECEPTION', 'CDD', '2024-04-01', '2026-06-30', 126000000000000, false),
+    (8, 8, 'HOUSEKEEPING', 'CDI', '2021-11-08', NULL, 126000000000000, true);
 
 -- Les id ci-dessus sont fixés explicitement : on doit resynchroniser le compteur IDENTITY
 -- sinon les prochains employés créés via l'appli entrent en collision avec un id déjà pris.

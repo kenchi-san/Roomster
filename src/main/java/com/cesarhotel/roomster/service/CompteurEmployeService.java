@@ -29,7 +29,7 @@ public class CompteurEmployeService {
     public List<CompteurEmployeDto> getCompteursAvecHistoriqueN1() {
         int anneeCourante = LocalDate.now().getYear();
 
-        List<CompteurEmploye> compteurs = compteurEmployeRepository.findAllByOrderByEmploye_NomAscEmploye_PrenomAscAnneeDesc();
+        List<CompteurEmploye> compteurs = compteurEmployeRepository.findAllByOrderByEmploye_User_NomAscEmploye_User_PrenomAscAnneeDesc();
 
         Map<Long, CompteurEmploye> comptesAnneeCourante = new LinkedHashMap<>();
         Map<Long, CompteurEmploye> comptesAnneeN1 = new HashMap<>();

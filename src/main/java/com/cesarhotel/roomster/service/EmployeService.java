@@ -18,7 +18,7 @@ public class EmployeService {
     }
 
     public Employe creer(EmployeFormDto dto) {
-        if (employeRepository.existsByEmail(dto.getEmail())) {
+        if (employeRepository.existsByUserEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Un employé avec cet email existe déjà");
         }
         Employe employe = employeMapper.toEntity(dto);
