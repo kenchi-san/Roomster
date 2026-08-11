@@ -23,7 +23,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
             <tr th:each="employe : ${employes}" th:attr="data-id=${employe.id}" class="hover:bg-slate-50">
-                <td class="px-4 py-3 text-slate-900" th:text="${employe.prenom + ' ' + employe.nom}"></td>
+                <td class="px-4 py-3 text-slate-900" th:text="${employe.user.prenom + ' ' + employe.user.nom}"></td>
                 <td class="px-4 py-3">
                     <span data-view="pointage-statut" class="text-slate-600"
                           th:text="${pointagesOuverts.get(employe.id) != null
@@ -53,7 +53,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                 <tr th:each="pointage : ${historique}" class="hover:bg-slate-50">
-                    <td class="px-4 py-3 text-slate-900" th:text="${pointage.employe.prenom + ' ' + pointage.employe.nom}"></td>
+                    <td class="px-4 py-3 text-slate-900" th:text="${pointage.employe.user.prenom + ' ' + pointage.employe.user.nom}"></td>
                     <td class="px-4 py-3 text-slate-600" th:text="${#temporals.format(pointage.entree, 'dd/MM/yyyy HH:mm')}"></td>
                     <td class="px-4 py-3 text-slate-600"
                         th:text="${pointage.sortie != null ? #temporals.format(pointage.sortie, 'dd/MM/yyyy HH:mm') : '—'}"></td>
