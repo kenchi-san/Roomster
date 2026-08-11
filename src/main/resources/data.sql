@@ -5,16 +5,17 @@ DELETE FROM compteur_employe;
 DELETE FROM employe;
 DELETE FROM users;
 
--- Comptes utilisateur (nom/prenom/email), un par employé
-INSERT INTO users (id, nom, prenom, email) VALUES
-    (1, 'Dupont', 'Jean', 'jean.dupont@roomster.fr'),
-    (2, 'Lefevre', 'Marie', 'marie.lefevre@roomster.fr'),
-    (3, 'Martin', 'Paul', 'paul.martin@roomster.fr'),
-    (4, 'Bernard', 'Sophie', 'sophie.bernard@roomster.fr'),
-    (5, 'Petit', 'Lucas', 'lucas.petit@roomster.fr'),
-    (6, 'Moreau', 'Camille', 'camille.moreau@roomster.fr'),
-    (7, 'Girard', 'Nicolas', 'nicolas.girard@roomster.fr'),
-    (8, 'Rousseau', 'Emma', 'emma.rousseau@roomster.fr');
+-- Comptes utilisateur (nom/prenom/email/password), un par employé
+-- Mot de passe de démo pour tous les comptes : "password123" (haché en BCrypt)
+INSERT INTO users (id, nom, prenom, email, password) VALUES
+    (1, 'Dupont', 'Jean', 'jean.dupont@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
+    (2, 'Lefevre', 'Marie', 'marie.lefevre@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
+    (3, 'Martin', 'Paul', 'paul.martin@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
+    (4, 'Bernard', 'Sophie', 'sophie.bernard@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
+    (5, 'Petit', 'Lucas', 'lucas.petit@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
+    (6, 'Moreau', 'Camille', 'camille.moreau@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
+    (7, 'Girard', 'Nicolas', 'nicolas.girard@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq'),
+    (8, 'Rousseau', 'Emma', 'emma.rousseau@roomster.fr', '$2a$10$cKADP4Kphl4Jfva6Kx8eb.1vr//R2BuGpY5ZZs6uOF0IdEXFg3.Nq');
 
 ALTER TABLE users ALTER COLUMN id RESTART WITH 9;
 

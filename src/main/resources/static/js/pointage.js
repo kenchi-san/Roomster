@@ -7,8 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+function csrfHeader() {
+    const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+    return match ? { 'X-XSRF-TOKEN': decodeURIComponent(match[1]) } : {};
+}
+
 function pointer(id) {
-    fetch(`/pointer-employe/${id}`, { method: 'POST' })
+    fetch(`/pointer-employe/${id}`, { method: 'POST', headers: csrfHeader() })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(message => { throw new Error(message || 'pointage failed'); });
