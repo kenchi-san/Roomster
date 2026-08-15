@@ -26,7 +26,7 @@ public class SecurityConfig {
                         // Gestion RH : réservée à l'admin. /pointer-employe/{id} y est rattaché car
                         // l'id y est fourni par le client (pointeuse collective, pas d'auto-restriction possible).
                         .requestMatchers("/liste-employe", "/ajout-employe",
-                                "/delete-employe/**", "/edit-employe/**", "/toggle-actif-employe/**",
+                                "/edit-employe/**", "/toggle-actif-employe/**",
                                 "/reset-password-employe/**",
                                 "/pointages", "/pointer-employe/**", "/conge-paye").hasRole("ADMIN")
                         // Espace personnel : accessible à tout utilisateur connecté (admin compris).

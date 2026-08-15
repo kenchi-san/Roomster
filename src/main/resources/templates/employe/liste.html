@@ -19,17 +19,21 @@
     </div>
 
     <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-900"
-            th:text="${afficherInactifs} ? 'Employés inactifs' : 'Employés actifs'"></h1>
+        <h1 class="text-2xl font-bold text-slate-900">Liste des employés</h1>
         <div class="flex gap-2">
-            <a th:if="${afficherInactifs}" th:href="@{/liste-employe}"
-               class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
-                Voir les actifs
-            </a>
-            <a th:unless="${afficherInactifs}" th:href="@{/liste-employe/inactifs}"
-               class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
-                Voir les inactifs
-            </a>
+            <form method="get" th:action="@{/liste-employe}" class="flex gap-2">
+                <select name="actif" onchange="this.form.submit()"
+                        class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+                    <option value="" th:selected="${filtreActif == null}">Tous les statuts</option>
+                    <option value="true" th:selected="${filtreActif != null and filtreActif}">Actifs</option>
+                    <option value="false" th:selected="${filtreActif != null and !filtreActif}">Inactifs</option>
+                </select>
+                <select name="poste" onchange="this.form.submit()"
+                        class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+                    <option value="" th:selected="${filtrePoste == null}">Tous les postes</option>
+                    <option th:each="p : ${postes}" th:value="${p}" th:text="${p}" th:selected="${p == filtrePoste}"></option>
+                </select>
+            </form>
             <a th:href="@{/ajout-employe}"
                class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700">
                 + Ajouter un employé
@@ -103,7 +107,6 @@
                         <button type="button" class="btn-save-employe hidden rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-emerald-500">Enregistrer</button>
                         <button type="button" class="btn-cancel-employe hidden rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Annuler</button>
                         <button type="button" class="btn-reset-password rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Réinitialiser mot de passe</button>
-                        <button type="button" class="btn-delete-employe rounded-md px-3 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50">Supprimer</button>
                     </div>
                 </td>
             </tr>

@@ -7,7 +7,9 @@ import com.cesarhotel.roomster.repository.PointageRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,8 +47,14 @@ public class PointageService {
     }
 
     public Optional<Pointage> pointer(Long employeId) {
-        if (!employeRepository.existsById(employeId)) {
+        Optional<Employe> employeOpt = employeRepository.findById(employeId);
+        if (employeOpt.isEmpty()) {
             return Optional.empty();
+        }
+        Employe employe = employeOpt.get();
+        if (!employe.isActif()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Un employé désactivé ne peut plus pointer");
         }
 
         Optional<Pointage> ouvert = pointageRepository.findByEmployeIdAndSortieIsNull(employeId);
@@ -55,7 +63,6 @@ public class PointageService {
             pointage = ouvert.get();
             pointage.setSortie(LocalDateTime.now());
         } else {
-            Employe employe = employeRepository.findById(employeId).orElseThrow();
             pointage = new Pointage();
             pointage.setEmploye(employe);
             pointage.setEntree(LocalDateTime.now());

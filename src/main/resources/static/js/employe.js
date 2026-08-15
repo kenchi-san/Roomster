@@ -7,9 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('tbody tr').forEach(row => {
         const id = row.dataset.id;
 
-        row.querySelector('.btn-delete-employe')
-            .addEventListener('click', () => deleteEmploye(id, row));
-
         row.querySelector('.btn-edit-employe')
             .addEventListener('click', () => setEditMode(row, true));
 
@@ -38,7 +35,6 @@ function setEditMode(row, editing) {
         }
     });
     row.querySelector('.btn-edit-employe').classList.toggle('hidden', editing);
-    row.querySelector('.btn-delete-employe').classList.toggle('hidden', editing);
     row.querySelector('.btn-save-employe').classList.toggle('hidden', !editing);
     row.querySelector('.btn-cancel-employe').classList.toggle('hidden', !editing);
 }
@@ -55,24 +51,6 @@ function resetFields(row) {
             field.value = view.textContent.trim();
         }
     });
-}
-
-function deleteEmploye(id, row) {
-    if (!confirm('Voulez-vous vraiment supprimer cet employé ?')) {
-        return;
-    }
-
-    fetch(`/delete-employe/${id}`, { method: 'DELETE', headers: csrfHeader() })
-        .then(response => {
-            if (response.status === 204) {
-                row.remove();
-            } else if (response.status === 404) {
-                alert("Cet employé n'existe plus.");
-            } else {
-                alert('La suppression a échoué.');
-            }
-        })
-        .catch(() => alert('Erreur réseau : la suppression a échoué.'));
 }
 
 function saveEmploye(id, row) {
@@ -114,10 +92,14 @@ function toggleActif(id, row) {
             }
             return response.json();
         })
-        .then(() => {
-            // L'employé change de statut : il quitte la liste affichée (actifs ou inactifs)
-            // pour rejoindre l'autre page.
-            row.remove();
+        .then(updated => {
+            const filtreActif = new URLSearchParams(window.location.search).get('actif');
+            if (filtreActif !== null && (filtreActif === 'true') !== updated.actif) {
+                row.remove();
+                return;
+            }
+            updateActifDisplay(row, updated.actif);
+            updateDateSortie(row, updated.dateSortie);
         })
         .catch(error => alert(error.message || 'Le changement de statut a échoué.'));
 }
