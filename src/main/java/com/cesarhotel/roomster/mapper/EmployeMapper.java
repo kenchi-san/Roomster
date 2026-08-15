@@ -13,6 +13,9 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface EmployeMapper {
 
+    @Mapping(target = "nom", source = "user.nom")
+    @Mapping(target = "prenom", source = "user.prenom")
+    @Mapping(target = "email", source = "user.email")
     EmployeDto toDto(Employe employe);
 
     List<EmployeDto> toDtoList(List<Employe> employes);
@@ -21,11 +24,17 @@ public interface EmployeMapper {
     @Mapping(target = "actif", ignore = true)
     @Mapping(target = "dateSortie", ignore = true)
     @Mapping(target = "dureeHebdoContrat", source = "dureeHebdoHeures", qualifiedByName = "heuresToDuration")
+    @Mapping(target = "user.nom", source = "nom")
+    @Mapping(target = "user.prenom", source = "prenom")
+    @Mapping(target = "user.email", source = "email")
     Employe toEntity(EmployeFormDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "actif", ignore = true)
     @Mapping(target = "dureeHebdoContrat", ignore = true)
+    @Mapping(target = "user.nom", source = "nom")
+    @Mapping(target = "user.prenom", source = "prenom")
+    @Mapping(target = "user.email", source = "email")
     void updateEntityFromDto(EmployeDto dto, @MappingTarget Employe employe);
 
     @org.mapstruct.Named("heuresToDuration")

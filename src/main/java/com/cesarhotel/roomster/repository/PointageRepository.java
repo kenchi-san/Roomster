@@ -2,6 +2,8 @@ package com.cesarhotel.roomster.repository;
 
 import com.cesarhotel.roomster.model.CompteurEmploye;
 import com.cesarhotel.roomster.model.Pointage;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +15,7 @@ public interface PointageRepository extends JpaRepository<Pointage, Long> {
     Optional <Pointage> findByEmployeIdAndSortieIsNull(Long employeId);
 
     List<Pointage> findBySortieIsNull();
+
+    Page<Pointage> findByEmployeId(Long employeId, Pageable pageable);
 
 }

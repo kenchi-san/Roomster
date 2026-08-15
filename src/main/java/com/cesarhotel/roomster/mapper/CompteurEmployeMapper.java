@@ -10,8 +10,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface CompteurEmployeMapper {
 
-    @Mapping(source = "employe.nom", target = "nom")
-    @Mapping(source = "employe.prenom", target = "prenom")
+    @Mapping(source = "employe.user.nom", target = "nom")
+    @Mapping(source = "employe.user.prenom", target = "prenom")
     @Mapping(source = "employe.poste", target = "poste")
     CompteurEmployeDto toDto(CompteurEmploye compteurEmploye);
 

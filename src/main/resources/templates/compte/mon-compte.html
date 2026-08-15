@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mon compte</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
+
+<main class="mx-auto max-w-xl flex-1 px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Mon compte</h1>
+
+    <div th:if="${succes}" class="mt-6 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800" th:text="${succes}"></div>
+    <div th:if="${erreur}" class="mt-6 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800" th:text="${erreur}"></div>
+
+    <form th:action="@{/mon-compte}" th:object="${changementMotDePasse}" method="post"
+          class="mt-6 space-y-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+        <div>
+            <label for="ancienMotDePasse" class="block text-sm font-medium text-slate-700">Mot de passe actuel</label>
+            <input type="password" id="ancienMotDePasse" th:field="*{ancienMotDePasse}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('ancienMotDePasse')}" th:errors="*{ancienMotDePasse}"></span>
+        </div>
+
+        <div>
+            <label for="nouveauMotDePasse" class="block text-sm font-medium text-slate-700">Nouveau mot de passe</label>
+            <input type="password" id="nouveauMotDePasse" th:field="*{nouveauMotDePasse}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('nouveauMotDePasse')}" th:errors="*{nouveauMotDePasse}"></span>
+            <p class="mt-1 text-xs text-slate-500">Au moins 8 caractères.</p>
+        </div>
+
+        <div>
+            <label for="confirmationMotDePasse" class="block text-sm font-medium text-slate-700">Confirmer le nouveau mot de passe</label>
+            <input type="password" id="confirmationMotDePasse" th:field="*{confirmationMotDePasse}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+            <span class="mt-1 block text-xs text-red-600" th:if="${#fields.hasErrors('confirmationMotDePasse')}" th:errors="*{confirmationMotDePasse}"></span>
+        </div>
+
+        <button type="submit" class="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700">
+            Mettre à jour
+        </button>
+    </form>
+</main>
+</div>
+</body>
+</html>
