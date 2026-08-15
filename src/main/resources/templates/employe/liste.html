@@ -6,10 +6,11 @@
     <title>Liste des employés</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body class="min-h-screen bg-slate-50">
-<header th:replace="~{fragments/nav :: nav}"></header>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
 
-<main class="mx-auto max-w-6xl px-4 py-8">
+<main class="mx-auto max-w-6xl flex-1 px-4 py-8">
     <div th:if="${motDePasseTemporaire}"
          class="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
         <p class="font-semibold">Mot de passe temporaire pour <span th:text="${emailNouvelEmploye}"></span> :</p>
@@ -105,6 +106,7 @@
         </table>
     </div>
 </main>
+</div>
 
 <script th:src="@{/js/employe.js}"></script>
 </body>
