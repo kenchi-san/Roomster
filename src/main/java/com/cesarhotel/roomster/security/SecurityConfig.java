@@ -27,9 +27,10 @@ public class SecurityConfig {
                         // l'id y est fourni par le client (pointeuse collective, pas d'auto-restriction possible).
                         .requestMatchers("/liste-employe", "/ajout-employe",
                                 "/delete-employe/**", "/edit-employe/**", "/toggle-actif-employe/**",
+                                "/reset-password-employe/**",
                                 "/pointages", "/pointer-employe/**", "/conge-paye").hasRole("ADMIN")
                         // Espace personnel : accessible à tout utilisateur connecté (admin compris).
-                        .requestMatchers("/mon-pointage", "/mon-pointage/**", "/mes-conges").authenticated()
+                        .requestMatchers("/mon-pointage", "/mon-pointage/**", "/mes-conges", "/mon-compte").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form.permitAll())
                 .logout(logout -> logout.permitAll())

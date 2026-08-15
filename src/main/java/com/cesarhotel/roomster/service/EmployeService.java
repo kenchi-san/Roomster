@@ -5,33 +5,42 @@ import com.cesarhotel.roomster.mapper.EmployeMapper;
 import com.cesarhotel.roomster.model.Employe;
 import com.cesarhotel.roomster.model.Role;
 import com.cesarhotel.roomster.repository.EmployeRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class EmployeService {
 
     private final EmployeRepository employeRepository;
     private final EmployeMapper employeMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
     public EmployeService(EmployeRepository employeRepository, EmployeMapper employeMapper,
-                          PasswordEncoder passwordEncoder) {
+                          UserService userService) {
         this.employeRepository = employeRepository;
         this.employeMapper = employeMapper;
-        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
     }
 
-    public Employe creer(EmployeFormDto dto) {
+    public EmployeCreationResult creer(EmployeFormDto dto) {
         if (employeRepository.existsByUserEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Un employé avec cet email existe déjà");
         }
         Employe employe = employeMapper.toEntity(dto);
-        // Mot de passe temporaire tant qu'il n'y a pas de flux d'invitation/définition de mot de passe.
-        employe.getUser().setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        String motDePasse = userService.definirMotDePasseTemporaire(employe.getUser());
         employe.getUser().setRole(Role.SALARIE);
-        return employeRepository.save(employe);
+        Employe saved = employeRepository.save(employe);
+        return new EmployeCreationResult(saved, motDePasse);
+    }
+
+    /**
+     * Regénère un mot de passe temporaire pour un employé existant (compte bloqué, mot de passe
+     * oublié...) : v1 sans email, l'admin communique la nouvelle valeur à la main.
+     */
+    public String reinitialiserMotDePasse(Long employeId) {
+        Employe employe = employeRepository.findById(employeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employé introuvable"));
+        String motDePasse = userService.definirMotDePasseTemporaire(employe.getUser());
+        employeRepository.save(employe);
+        return motDePasse;
     }
 }

@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         row.querySelector('.btn-toggle-actif')
             .addEventListener('click', () => toggleActif(id, row));
+
+        row.querySelector('.btn-reset-password')
+            .addEventListener('click', () => resetPassword(id, row));
     });
 
     const btnFilterInactifs = document.getElementById('btn-filter-inactifs');
@@ -133,6 +136,25 @@ function toggleActif(id, row) {
             applyInactifFilter();
         })
         .catch(error => alert(error.message || 'Le changement de statut a échoué.'));
+}
+
+function resetPassword(id, row) {
+    const email = row.querySelector('[data-view="email"]').textContent.trim();
+    if (!confirm(`Générer un nouveau mot de passe temporaire pour ${email} ?`)) {
+        return;
+    }
+
+    fetch(`/reset-password-employe/${id}`, { method: 'PATCH', headers: csrfHeader() })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(message => { throw new Error(message || 'reset failed'); });
+            }
+            return response.json();
+        })
+        .then(result => {
+            prompt(`Nouveau mot de passe temporaire pour ${email} (à communiquer à la main) :`, result.motDePasseTemporaire);
+        })
+        .catch(error => alert(error.message || 'La réinitialisation a échoué.'));
 }
 
 function updateDateSortie(row, dateSortie) {
