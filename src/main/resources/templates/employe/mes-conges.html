@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Congés payés</title>
+    <title>Mes congés</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body class="bg-slate-50">
 <div class="flex min-h-screen">
 <aside th:replace="~{fragments/nav :: nav}"></aside>
 
-<main class="mx-auto max-w-6xl flex-1 px-4 py-8">
-    <h1 class="text-2xl font-bold text-slate-900">Compteurs congés payés / RTT</h1>
+<main class="mx-auto max-w-4xl flex-1 px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Mes congés payés / RTT</h1>
 
     <div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">
             <thead class="bg-slate-50">
             <tr>
-                <th scope="col" rowspan="2" class="px-4 py-3 text-left font-semibold text-slate-600">Nom</th>
-                <th scope="col" rowspan="2" class="px-4 py-3 text-left font-semibold text-slate-600">Prénom</th>
-                <th scope="col" rowspan="2" class="px-4 py-3 text-left font-semibold text-slate-600">Poste</th>
                 <th scope="col" rowspan="2" class="px-4 py-3 text-left font-semibold text-slate-600">Année</th>
                 <th scope="col" colspan="3" class="px-4 py-3 text-center font-semibold text-slate-600">N</th>
                 <th scope="col" colspan="3" class="px-4 py-3 text-center font-semibold text-slate-600">N-1</th>
@@ -35,9 +32,6 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
             <tr th:each="c : ${compteur}" class="hover:bg-slate-50">
-                <td class="px-4 py-3 text-slate-900" th:text="${c.nom}"></td>
-                <td class="px-4 py-3 text-slate-900" th:text="${c.prenom}"></td>
-                <td class="px-4 py-3 text-slate-600" th:text="${c.poste}"></td>
                 <td class="px-4 py-3 text-slate-600" th:text="${c.annee}"></td>
                 <td class="px-4 py-3 text-slate-600" th:text="${c.soldeCongesPayes}"></td>
                 <td class="px-4 py-3 text-slate-600" th:text="${c.soldeRtt}"></td>
@@ -45,6 +39,9 @@
                 <td class="px-4 py-3 text-slate-400" th:text="${c.soldeCongesPayesN1} ?: '-'"></td>
                 <td class="px-4 py-3 text-slate-400" th:text="${c.soldeRttN1} ?: '-'"></td>
                 <td class="px-4 py-3 text-slate-400" th:text="${c.heuresSupCumuleesN1} ?: '-'"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(compteur)}">
+                <td class="px-4 py-3 text-slate-400" colspan="7">Aucun compteur enregistré.</td>
             </tr>
             </tbody>
         </table>

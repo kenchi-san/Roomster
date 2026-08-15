@@ -6,10 +6,11 @@
     <title>Pointages</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body class="min-h-screen bg-slate-50">
-<header th:replace="~{fragments/nav :: nav}"></header>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
 
-<main class="mx-auto max-w-6xl px-4 py-8">
+<main class="mx-auto max-w-6xl flex-1 px-4 py-8">
     <h1 class="text-2xl font-bold text-slate-900">Pointages</h1>
 
     <div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -23,7 +24,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
             <tr th:each="employe : ${employes}" th:attr="data-id=${employe.id}" class="hover:bg-slate-50">
-                <td class="px-4 py-3 text-slate-900" th:text="${employe.prenom + ' ' + employe.nom}"></td>
+                <td class="px-4 py-3 text-slate-900" th:text="${employe.user.prenom + ' ' + employe.user.nom}"></td>
                 <td class="px-4 py-3">
                     <span data-view="pointage-statut" class="text-slate-600"
                           th:text="${pointagesOuverts.get(employe.id) != null
@@ -53,7 +54,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                 <tr th:each="pointage : ${historique}" class="hover:bg-slate-50">
-                    <td class="px-4 py-3 text-slate-900" th:text="${pointage.employe.prenom + ' ' + pointage.employe.nom}"></td>
+                    <td class="px-4 py-3 text-slate-900" th:text="${pointage.employe.user.prenom + ' ' + pointage.employe.user.nom}"></td>
                     <td class="px-4 py-3 text-slate-600" th:text="${#temporals.format(pointage.entree, 'dd/MM/yyyy HH:mm')}"></td>
                     <td class="px-4 py-3 text-slate-600"
                         th:text="${pointage.sortie != null ? #temporals.format(pointage.sortie, 'dd/MM/yyyy HH:mm') : '—'}"></td>
@@ -83,6 +84,7 @@
         </div>
     </div>
 </main>
+</div>
 
 <script th:src="@{/js/pointage.js}"></script>
 </body>

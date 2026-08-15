@@ -6,10 +6,18 @@
     <title>Liste des employés</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body class="min-h-screen bg-slate-50">
-<header th:replace="~{fragments/nav :: nav}"></header>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
 
-<main class="mx-auto max-w-6xl px-4 py-8">
+<main class="mx-auto max-w-6xl flex-1 px-4 py-8">
+    <div th:if="${motDePasseTemporaire}"
+         class="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <p class="font-semibold">Mot de passe temporaire pour <span th:text="${emailNouvelEmploye}"></span> :</p>
+        <p class="mt-1 font-mono text-base" th:text="${motDePasseTemporaire}"></p>
+        <p class="mt-1 text-amber-700">À communiquer à la main à l'employé — il ne sera plus jamais affiché.</p>
+    </div>
+
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-slate-900"
             th:text="${afficherInactifs} ? 'Employés inactifs' : 'Employés actifs'"></h1>
@@ -94,6 +102,7 @@
                         <button type="button" class="btn-edit-employe rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Modifier</button>
                         <button type="button" class="btn-save-employe hidden rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-emerald-500">Enregistrer</button>
                         <button type="button" class="btn-cancel-employe hidden rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Annuler</button>
+                        <button type="button" class="btn-reset-password rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Réinitialiser mot de passe</button>
                         <button type="button" class="btn-delete-employe rounded-md px-3 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50">Supprimer</button>
                     </div>
                 </td>
@@ -102,6 +111,7 @@
         </table>
     </div>
 </main>
+</div>
 
 <script th:src="@{/js/employe.js}"></script>
 </body>

@@ -27,9 +27,20 @@ public class CompteurEmployeService {
      * Une ligne par employé, avec le compteur de l'année courante et, si disponible, celui de l'année N-1.
      */
     public List<CompteurEmployeDto> getCompteursAvecHistoriqueN1() {
-        int anneeCourante = LocalDate.now().getYear();
+        List<CompteurEmploye> compteurs = compteurEmployeRepository.findAllByOrderByEmploye_User_NomAscEmploye_User_PrenomAscAnneeDesc();
+        return avecHistoriqueN1(compteurs);
+    }
 
-        List<CompteurEmploye> compteurs = compteurEmployeRepository.findAllByOrderByEmploye_NomAscEmploye_PrenomAscAnneeDesc();
+    /**
+     * Mêmes lignes, mais restreintes aux compteurs de l'employé associé à cet email.
+     */
+    public List<CompteurEmployeDto> getMesCompteurs(String email) {
+        List<CompteurEmploye> compteurs = compteurEmployeRepository.findByEmploye_User_EmailOrderByAnneeDesc(email);
+        return avecHistoriqueN1(compteurs);
+    }
+
+    private List<CompteurEmployeDto> avecHistoriqueN1(List<CompteurEmploye> compteurs) {
+        int anneeCourante = LocalDate.now().getYear();
 
         Map<Long, CompteurEmploye> comptesAnneeCourante = new LinkedHashMap<>();
         Map<Long, CompteurEmploye> comptesAnneeN1 = new HashMap<>();

@@ -1,3 +1,8 @@
+function csrfHeader() {
+    const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+    return match ? { 'X-XSRF-TOKEN': decodeURIComponent(match[1]) } : {};
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('tbody tr').forEach(row => {
         const id = row.dataset.id;
@@ -19,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         row.querySelector('.btn-toggle-actif')
             .addEventListener('click', () => toggleActif(id, row));
+
+        row.querySelector('.btn-reset-password')
+            .addEventListener('click', () => resetPassword(id, row));
     });
 });
 
@@ -54,7 +62,7 @@ function deleteEmploye(id, row) {
         return;
     }
 
-    fetch(`/delete-employe/${id}`, { method: 'DELETE' })
+    fetch(`/delete-employe/${id}`, { method: 'DELETE', headers: csrfHeader() })
         .then(response => {
             if (response.status === 204) {
                 row.remove();
@@ -75,7 +83,7 @@ function saveEmploye(id, row) {
 
     fetch(`/edit-employe/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeader() },
         body: JSON.stringify(dto)
     })
         .then(response => {
@@ -99,7 +107,7 @@ function saveEmploye(id, row) {
 }
 
 function toggleActif(id, row) {
-    fetch(`/toggle-actif-employe/${id}`, { method: 'PATCH' })
+    fetch(`/toggle-actif-employe/${id}`, { method: 'PATCH', headers: csrfHeader() })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(message => { throw new Error(message || 'toggle failed'); });
@@ -112,6 +120,25 @@ function toggleActif(id, row) {
             row.remove();
         })
         .catch(error => alert(error.message || 'Le changement de statut a échoué.'));
+}
+
+function resetPassword(id, row) {
+    const email = row.querySelector('[data-view="email"]').textContent.trim();
+    if (!confirm(`Générer un nouveau mot de passe temporaire pour ${email} ?`)) {
+        return;
+    }
+
+    fetch(`/reset-password-employe/${id}`, { method: 'PATCH', headers: csrfHeader() })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(message => { throw new Error(message || 'reset failed'); });
+            }
+            return response.json();
+        })
+        .then(result => {
+            prompt(`Nouveau mot de passe temporaire pour ${email} (à communiquer à la main) :`, result.motDePasseTemporaire);
+        })
+        .catch(error => alert(error.message || 'La réinitialisation a échoué.'));
 }
 
 function updateDateSortie(row, dateSortie) {

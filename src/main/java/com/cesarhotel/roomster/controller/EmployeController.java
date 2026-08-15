@@ -9,6 +9,7 @@ import com.cesarhotel.roomster.model.Poste;
 import com.cesarhotel.roomster.model.TypeContrat;
 import com.cesarhotel.roomster.repository.EmployeRepository;
 import com.cesarhotel.roomster.service.CompteurEmployeService;
+import com.cesarhotel.roomster.service.EmployeCreationResult;
 import com.cesarhotel.roomster.service.EmployeService;
 import jakarta.persistence.Id;
 import jakarta.validation.Valid;
@@ -17,10 +18,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -49,14 +52,19 @@ public class EmployeController {
     @PostMapping("/ajout-employe")
     public String ajoutEmploye(@Valid @ModelAttribute("employe") EmployeFormDto dto,
                                BindingResult bindingResult,
-                               Model model) {
+                               Model model,
+                               RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("postes", Poste.values());
             model.addAttribute("typesContrat", TypeContrat.values());
             return "employe/ajout";
         }
 
-        employeService.creer(dto);
+        EmployeCreationResult result = employeService.creer(dto);
+        // Aucun envoi d'email en v1 : le mot de passe temporaire n'est affiché qu'une fois ici,
+        // à l'admin qui vient de créer la fiche, à charge pour lui de le communiquer à la main.
+        redirectAttributes.addFlashAttribute("motDePasseTemporaire", result.motDePasseTemporaire());
+        redirectAttributes.addFlashAttribute("emailNouvelEmploye", result.employe().getUser().getEmail());
         return "redirect:/liste-employe";
     }
 
@@ -111,6 +119,16 @@ public class EmployeController {
         Employe saved = employeRepository.save(employe);
 
         return ResponseEntity.ok(employeMapper.toDto(saved));
+    }
+
+    @PatchMapping("/reset-password-employe/{id}")
+    public ResponseEntity<?> reinitialiserMotDePasse(@PathVariable Long id) {
+        if (!employeRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String motDePasse = employeService.reinitialiserMotDePasse(id);
+        return ResponseEntity.ok(Map.of("motDePasseTemporaire", motDePasse));
     }
 
     @PutMapping("/edit-employe/{id}")
