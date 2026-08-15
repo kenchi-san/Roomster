@@ -1,17 +1,29 @@
-<header th:fragment="nav" class="border-b border-slate-200 bg-slate-900">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a th:href="@{/}" class="text-lg font-semibold tracking-tight text-white">Roomster</a>
-        <nav class="flex gap-6 text-sm font-medium text-slate-300">
-            <a th:if="${isAdmin}" th:href="@{/liste-employe}" class="transition hover:text-white">Employés</a>
-            <a th:if="${isAdmin}" th:href="@{/ajout-employe}" class="transition hover:text-white">Ajouter</a>
-            <a th:if="${isAdmin}" th:href="@{/conge-paye}" class="transition hover:text-white">Congés (RH)</a>
-            <a th:if="${isAdmin}" th:href="@{/pointages}" class="transition hover:text-white">Pointages (RH)</a>
-            <a th:href="@{/mon-pointage}" class="transition hover:text-white">Ma pointeuse</a>
-            <a th:href="@{/mes-conges}" class="transition hover:text-white">Mes congés</a>
-            <a th:href="@{/mon-compte}" class="transition hover:text-white">Mon compte</a>
+<aside th:fragment="nav"
+       class="flex w-60 flex-shrink-0 flex-col justify-between border-r border-slate-200 bg-slate-900 px-4 py-6">
+    <div>
+        <a th:href="@{/}" class="block text-lg font-semibold tracking-tight text-white">Roomster</a>
+
+        <nav class="mt-8 flex flex-col gap-1 text-sm font-medium text-slate-300">
+            <a th:href="@{/mon-pointage}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Ma pointeuse</a>
+            <a th:href="@{/mes-conges}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Mes congés</a>
+            <a th:href="@{/mon-compte}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Mon compte</a>
+
+            <div th:if="${isAdmin}" class="mt-6 border-t border-slate-800 pt-6">
+                <p class="px-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">Administration</p>
+                <div class="mt-2 flex flex-col gap-1">
+                    <a th:href="@{/liste-employe}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Employés</a>
+                    <a th:href="@{/ajout-employe}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Ajouter un employé</a>
+                    <a th:href="@{/conge-paye}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Congés (RH)</a>
+                    <a th:href="@{/pointages}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Pointages (RH)</a>
+                </div>
+            </div>
         </nav>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="text-sm font-medium text-slate-300 transition hover:text-white">Déconnexion</button>
-        </form>
     </div>
-</header>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit"
+                class="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white">
+            Déconnexion
+        </button>
+    </form>
+</aside>
