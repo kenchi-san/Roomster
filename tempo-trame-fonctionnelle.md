@@ -3,7 +3,7 @@
 Gestion du personnel pour un hôtel : heures, pointages, absences, compteurs.
 Chaque fonctionnalité est décrite avec son comportement attendu, ses règles et les points à ne pas oublier.
 
-## État d'avancement (audité sur le code au 2026-08-11)
+## État d'avancement (audité sur le code au 2026-08-15)
 
 | # | Fonctionnalité | Statut |
 |---|---|---|
@@ -13,9 +13,9 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 | F4 | Demandes d'absence | 🚧 Partiel (logique en base non exposée, inchangé) |
 | F5 | Compteurs et soldes | 🚧 Partiel *(nouveau : vue personnelle `/mes-conges` filtrée par utilisateur depuis le 11/08)* |
 | F6 | Tableau de bord manager | ❌ Non commencé |
-| F7 | Authentification et rôles | 🚧 Partiel *(nouveau depuis le 11/08 : login, mot de passe, rôles ADMIN/SALARIE, routes protégées)* |
+| F7 | Authentification et rôles | 🚧 Partiel *(nouveau depuis le 15/08 : mot de passe temporaire affiché à l'admin à la création, réinitialisation admin, changement de mot de passe self-service `/mon-compte`)* |
 
-**Points bloquants à connaître** : le bouton "Supprimer" employé fait toujours une suppression physique en base, ce qui contredit explicitement la règle F1 de ne jamais supprimer un employé. Le badge entrée/sortie (F2) est désormais fonctionnel mais **ne vérifie pas que l'employé est actif** — un employé désactivé peut encore pointer via l'endpoint `/pointer-employe/{id}` (seule la page liste le filtre, pas le service ; `/mon-pointage/pointer`, ajouté le 11/08, hérite du même manque). L'entité `DemandeAbsence` existe toujours avec une partie de ses règles métier codées, mais aucun repository/service/contrôleur ne l'expose — F3, F5 (débit réel) et F6 en dépendent et restent bloquées tant que F3/F4 ne sont pas raccordés. **Nouveau point bloquant (F7)** : un employé créé via `/ajout-employe` reçoit un mot de passe temporaire aléatoire (haché, jamais communiqué) — il n'existe aucun flux d'invitation ni de réinitialisation, donc aucun nouvel employé ne peut se connecter tant qu'un mot de passe ne lui a pas été fixé à la main (pas d'UI pour ça non plus).
+**Points bloquants à connaître** : le bouton "Supprimer" employé fait toujours une suppression physique en base, ce qui contredit explicitement la règle F1 de ne jamais supprimer un employé. Le badge entrée/sortie (F2) est désormais fonctionnel mais **ne vérifie pas que l'employé est actif** — un employé désactivé peut encore pointer via l'endpoint `/pointer-employe/{id}` (seule la page liste le filtre, pas le service ; `/mon-pointage/pointer`, ajouté le 11/08, hérite du même manque). L'entité `DemandeAbsence` existe toujours avec une partie de ses règles métier codées, mais aucun repository/service/contrôleur ne l'expose — F3, F5 (débit réel) et F6 en dépendent et restent bloquées tant que F3/F4 ne sont pas raccordés. **Ancien point bloquant (F7) résolu le 15/08** : un employé créé via `/ajout-employe` reçoit désormais un mot de passe temporaire affiché une fois à l'admin (bannière sur `/liste-employe`, à communiquer à la main — toujours pas d'email en v1) ; l'admin peut aussi le régénérer à tout moment (`/reset-password-employe/{id}`) et tout utilisateur connecté peut changer son propre mot de passe via `/mon-compte`.
 
 ---
 
@@ -159,10 +159,11 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 - [ ] Chaque page doit filtrer par utilisateur connecté : un employé ne doit jamais voir les données d'un autre. *(vrai uniquement pour les 2 pages qui existent aujourd'hui — `/mon-pointage` et `/mes-conges` dérivent toujours l'employé depuis `Authentication`, jamais d'un id fourni par le client. Le principe reste à appliquer à toute future page personnelle : F3 "mes heures", F4 "mes demandes".)*
 
 **Points à penser**
-- Qui crée les comptes et réinitialise les mots de passe ? *(toujours V1 : le manager, à la main — et même ça n'a pas d'UI. `EmployeService.creer()` génère un mot de passe temporaire aléatoire haché, jamais communiqué à personne : un nouvel employé ne peut pas se connecter tant que ce mot de passe n'est pas réinitialisé manuellement, ce qui n'a pas d'endpoint. Bloquant réel pour l'onboarding.)*
+- Qui crée les comptes et réinitialise les mots de passe ? *(V1, résolu le 15/08 : le manager, à la main, mais avec UI désormais — `EmployeService.creer()` génère un mot de passe temporaire affiché une fois à l'admin via une bannière flash sur `/liste-employe` ; `EmployeService.reinitialiserMotDePasse()` / `PATCH /reset-password-employe/{id}` permet de le régénérer pour un compte existant, affiché via `prompt()` côté JS. Toujours aucun email envoyé : l'admin communique la valeur à la main.)*
 - CSRF est réactivé mais **désactivé sur `/h2-console/**`** (nécessaire techniquement pour que la console fonctionne) : à retirer avant tout déploiement au-delà du poste de dev.
-- Aucune page de gestion des comptes (changer son propre mot de passe, lister/révoquer les comptes) n'existe : le seul levier est `data.sql` ou la console H2.
+- Page de gestion de compte : `/mon-compte` (ajouté le 15/08) permet à tout utilisateur connecté de changer son propre mot de passe (ancien + nouveau + confirmation, `UserService.changerMotDePasse()`). Toujours pas de page pour lister/révoquer les comptes — seul levier restant : `data.sql` ou la console H2.
 - `/pointer-employe/{id}` (admin) accepte toujours un id fourni par le client — volontaire (pointeuse collective pour le manager) mais à garder en tête si la route est un jour rouverte à un rôle non-admin.
+- Pas de flag `mustChangePassword` : un employé peut travailler indéfiniment avec son mot de passe temporaire sans y être jamais invité à le changer (choix v1 assumé, cf. décision du 15/08).
 
 ---
 
@@ -185,4 +186,4 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 4. F5 Compteurs (structure + mouvements) — 🚧 structure, lecture globale et lecture personnelle (`/mes-conges`) ok, débit/crédit et historique à raccorder
 5. F4 Absences (s'appuie sur les compteurs) — 🚧 entité et règles écrites, à exposer via repository/service/contrôleur
 6. F6 Tableau de bord (agrège tout) — ❌ à faire
-7. F7 Sécurité — 🚧 fait en avance sur l'ordre conseillé (login/mot de passe/rôles/routes protégées le 11/08, avant F3/F4/F6) ; reste : flux de réinitialisation de mot de passe, filtrage par utilisateur sur les futures pages F3/F4/F6
+7. F7 Sécurité — 🚧 fait en avance sur l'ordre conseillé (login/mot de passe/rôles/routes protégées le 11/08, avant F3/F4/F6) ; flux de mot de passe (création/réinitialisation admin + self-service) ajouté le 15/08 ; reste : filtrage par utilisateur sur les futures pages F3/F4/F6, page de gestion/révocation des comptes

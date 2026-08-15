@@ -8,6 +8,7 @@
             <a th:if="${isAdmin}" th:href="@{/pointages}" class="transition hover:text-white">Pointages (RH)</a>
             <a th:href="@{/mon-pointage}" class="transition hover:text-white">Ma pointeuse</a>
             <a th:href="@{/mes-conges}" class="transition hover:text-white">Mes congés</a>
+            <a th:href="@{/mon-compte}" class="transition hover:text-white">Mon compte</a>
         </nav>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="text-sm font-medium text-slate-300 transition hover:text-white">Déconnexion</button>
