@@ -69,23 +69,26 @@ public class EmployeController {
     }
 
     @GetMapping("/liste-employe")
-    public String listEmploye(Model model) {
-        List<EmployeDto> employes = employeMapper.toDtoList(employeRepository.findAll());
-        model.addAttribute("employes", employes);
-        model.addAttribute("postes", Poste.values());
-        model.addAttribute("typesContrat", TypeContrat.values());
-        return "employe/liste";
-    }
-
-    @DeleteMapping("/delete-employe/{id}")
-    public ResponseEntity<Void> deleteEmploye(@PathVariable Long id) {
-        if (!employeRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+    public String listEmploye(@RequestParam(required = false) Boolean actif,
+                              @RequestParam(required = false) Poste poste,
+                              Model model) {
+        List<Employe> resultat;
+        if (actif != null && poste != null) {
+            resultat = employeRepository.findByActifAndPoste(actif, poste);
+        } else if (actif != null) {
+            resultat = employeRepository.findByActif(actif);
+        } else if (poste != null) {
+            resultat = employeRepository.findByPoste(poste);
         } else {
-            employeRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            resultat = employeRepository.findAll();
         }
 
+        model.addAttribute("employes", employeMapper.toDtoList(resultat));
+        model.addAttribute("postes", Poste.values());
+        model.addAttribute("typesContrat", TypeContrat.values());
+        model.addAttribute("filtreActif", actif);
+        model.addAttribute("filtrePoste", poste);
+        return "employe/liste";
     }
 
     @PatchMapping("/toggle-actif-employe/{id}")
@@ -125,6 +128,10 @@ public class EmployeController {
     public ResponseEntity<?> editionEmploye(@PathVariable Long id, @RequestBody EmployeDto dto) {
         if (!employeRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
+        }
+
+        if (dto.getEmail() != null && employeRepository.existsByUserEmailAndIdNot(dto.getEmail(), id)) {
+            return ResponseEntity.badRequest().body("Un employé avec cet email existe déjà");
         }
 
         Employe employe = employeRepository.findById(id).orElseThrow();

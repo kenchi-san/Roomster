@@ -7,7 +7,7 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 
 | # | Fonctionnalité | Statut |
 |---|---|---|
-| F1 | Gestion des employés | 🚧 Partiel (inchangé depuis le 30/07) |
+| F1 | Gestion des employés | ✅ Terminé *(finalisé le 15/08 : suppression physique retirée, filtre serveur actif/poste, re-vérification email à la modification, employé désactivé bloqué au pointage)* |
 | F2 | Pointage (badge entrée/sortie) | 🚧 Partiel *(nouveau : vue personnelle `/mon-pointage` depuis le 11/08)* |
 | F3 | Calcul des heures | ❌ Non commencé |
 | F4 | Demandes d'absence | 🚧 Partiel (logique en base non exposée, inchangé) |
@@ -15,22 +15,22 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 | F6 | Tableau de bord manager | ❌ Non commencé |
 | F7 | Authentification et rôles | 🚧 Partiel *(nouveau depuis le 15/08 : mot de passe temporaire affiché à l'admin à la création, réinitialisation admin, changement de mot de passe self-service `/mon-compte`)* |
 
-**Points bloquants à connaître** : le bouton "Supprimer" employé fait toujours une suppression physique en base, ce qui contredit explicitement la règle F1 de ne jamais supprimer un employé. Le badge entrée/sortie (F2) est désormais fonctionnel mais **ne vérifie pas que l'employé est actif** — un employé désactivé peut encore pointer via l'endpoint `/pointer-employe/{id}` (seule la page liste le filtre, pas le service ; `/mon-pointage/pointer`, ajouté le 11/08, hérite du même manque). L'entité `DemandeAbsence` existe toujours avec une partie de ses règles métier codées, mais aucun repository/service/contrôleur ne l'expose — F3, F5 (débit réel) et F6 en dépendent et restent bloquées tant que F3/F4 ne sont pas raccordés. **Ancien point bloquant (F7) résolu le 15/08** : un employé créé via `/ajout-employe` reçoit désormais un mot de passe temporaire affiché une fois à l'admin (bannière sur `/liste-employe`, à communiquer à la main — toujours pas d'email en v1) ; l'admin peut aussi le régénérer à tout moment (`/reset-password-employe/{id}`) et tout utilisateur connecté peut changer son propre mot de passe via `/mon-compte`.
+**Points bloquants à connaître** : l'entité `DemandeAbsence` existe toujours avec une partie de ses règles métier codées, mais aucun repository/service/contrôleur ne l'expose — F3, F5 (débit réel) et F6 en dépendent et restent bloquées tant que F3/F4 ne sont pas raccordés. **Anciens points bloquants résolus le 15/08** : (F7) un employé créé via `/ajout-employe` reçoit désormais un mot de passe temporaire affiché une fois à l'admin (bannière sur `/liste-employe`, à communiquer à la main — toujours pas d'email en v1) ; l'admin peut aussi le régénérer à tout moment (`/reset-password-employe/{id}`) et tout utilisateur connecté peut changer son propre mot de passe via `/mon-compte`. (F1) le bouton "Supprimer" employé (suppression physique) a été retiré — seule la désactivation existe désormais ; `/liste-employe` filtre côté serveur par statut actif et par poste ; `/edit-employe/{id}` revérifie l'unicité de l'email ; `PointageService.pointer()` refuse désormais le pointage d'un employé désactivé (403), y compris via `/mon-pointage/pointer`.
 
 ---
 
 ## F1 — Gestion des employés
 
-**Statut : 🚧 Partiel**
+**Statut : ✅ Terminé** *(finalisé le 15/08)*
 
 **Comportement attendu**
 - [x] Créer, consulter, modifier une fiche employé (nom, prénom, email, poste, type de contrat, date d'entrée, durée hebdo contractuelle).
-- [x] Désactiver un employé qui quitte l'hôtel (date de sortie + actif = false) plutôt que le supprimer. ✅ *corrigé depuis le 30/07 : `toggle-actif-employe` renseigne désormais `dateSortie` à la désactivation et la remet à `null` à la réactivation.* Reste contraire à la règle : un bouton "Supprimer" fait toujours une suppression physique réelle.
-- [ ] Lister les employés actifs, filtrer par poste. *(toujours pas de filtre côté serveur ; un filtre "voir les inactifs" a été ajouté côté client en JS — masque les lignes déjà chargées, ne remplace pas un vrai filtre serveur, et il n'y a toujours aucun filtre par poste)*
+- [x] Désactiver un employé qui quitte l'hôtel (date de sortie + actif = false) plutôt que le supprimer. ✅ *corrigé depuis le 30/07 : `toggle-actif-employe` renseigne désormais `dateSortie` à la désactivation et la remet à `null` à la réactivation.* ✅ *15/08 : le bouton "Supprimer" (suppression physique) a été retiré de `/liste-employe`, ainsi que l'endpoint `DELETE /delete-employe/{id}` et sa règle de sécurité — la désactivation est désormais le seul moyen de retirer un employé de la liste active.*
+- [x] Lister les employés actifs, filtrer par poste. ✅ *15/08 : `GET /liste-employe` accepte des paramètres `actif` et `poste`, filtrés côté serveur via `EmployeRepository` (`findByActif`, `findByPoste`, `findByActifAndPoste`) ; deux menus déroulants sur la page soumettent ces paramètres. Le filtre client-side JS a été retiré.*
 
 **Règles métier**
-- [x] L'email est unique : c'est l'identifiant de connexion. ✅ *confirmé depuis le 11/08 : `User.email` est désormais le username Spring Security (`CustomUserDetailsService`). Contrainte unique en base ; toujours non re-vérifiée côté service lors d'une modification — `updateEntityFromDto` ne relance pas `existsByUserEmail`.*
-- [ ] Un employé désactivé ne peut plus pointer ni soumettre de demande. *(F2 existe maintenant mais `PointageService.pointer()` ne vérifie pas `employe.isActif()` — la règle n'est pas appliquée, y compris depuis `/mon-pointage/pointer` ; F4 reste non applicable, non implémenté)*
+- [x] L'email est unique : c'est l'identifiant de connexion. ✅ *confirmé depuis le 11/08 : `User.email` est désormais le username Spring Security (`CustomUserDetailsService`). Contrainte unique en base. ✅ 15/08 : re-vérifiée côté service à la modification — `PUT /edit-employe/{id}` appelle `existsByUserEmailAndIdNot` et renvoie 400 si l'email est déjà pris par un autre employé.*
+- [x] Un employé désactivé ne peut plus pointer ni soumettre de demande. ✅ *15/08, partiel : `PointageService.pointer()` vérifie désormais `employe.isActif()` et renvoie 403 sinon, y compris depuis `/mon-pointage/pointer`. Le volet "soumettre une demande" reste hors de portée tant que F4 n'est pas exposée (aucune route n'existe pour soumettre une demande, actif ou non).*
 - [x] La date de sortie ne peut pas précéder la date d'entrée. ✅ *corrigé depuis le 30/07 : validée à la fois dans `toggleActifEmploye` et `editionEmploye` (renvoie 400 sinon).*
 
 **Points à penser**
@@ -45,7 +45,7 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 **Statut : 🚧 Partiel** *(nouveau depuis le 30/07 : `PointageController`, `PointageService`, `PointageRepository`, `PointageDto`/`PointageMapper` sont implémentés et la page `/pointages` est fonctionnelle)*
 
 **Comportement attendu**
-- [x] L'employé "pointe" : si aucun pointage ouvert → création d'un pointage avec l'heure d'entrée ; si un pointage est ouvert → il est fermé avec l'heure de sortie. *(`PointageService.pointer()` : logique correcte, mais ne vérifie pas que l'employé est actif — voir règle F1 ci-dessus)*
+- [x] L'employé "pointe" : si aucun pointage ouvert → création d'un pointage avec l'heure d'entrée ; si un pointage est ouvert → il est fermé avec l'heure de sortie. *(`PointageService.pointer()` : logique correcte. ✅ 15/08 : vérifie désormais que l'employé est actif — voir règle F1 ci-dessus)*
 - [ ] Un manager peut corriger un pointage (oubli de badge) avec un commentaire obligatoire expliquant la correction. *(le champ `commentaire` existe sur l'entité mais aucune route ne permet de le renseigner ni de modifier un pointage existant)*
 - [ ] Consultation des pointages du jour / de la semaine par employé. *(`/pointages` (admin) montre le statut du jour pour tous les employés + un historique global paginé ; nouveau depuis le 11/08 : `/mon-pointage` donne à chaque salarié son propre statut + son propre historique paginé — mais toujours pas d'agrégat "semaine")*
 
@@ -152,7 +152,7 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 **Comportement attendu**
 - [x] Connexion par email + mot de passe. ✅ *formulaire de login Spring Security par défaut (`/login`), `User.email` = username, mot de passe haché en BCrypt. CSRF réactivé (cookie `XSRF-TOKEN` lisible en JS, voir points à penser). Comptes de démo dans `data.sql` : mot de passe `password123` pour tous.*
 - [ ] Rôle EMPLOYE : pointe, voit ses heures, ses soldes, gère ses demandes. *(rôle implémenté sous le nom `SALARIE`, pas `EMPLOYE` — à harmoniser si la nomenclature de la trame doit rester la référence. Pointe ✅ `/mon-pointage`, voit ses soldes ✅ `/mes-conges`, voit ses heures ❌ dépend de F3 non fait, gère ses demandes ❌ dépend de F4 non exposé — aucune route "mes demandes" n'existe encore côté employé ni manager.)*
-- [x] Rôle MANAGER : tout voir, valider/refuser, corriger les pointages, gérer les fiches. *(implémenté sous le nom `ADMIN`. Tout voir ✅ `/liste-employe`, `/pointages`, `/conge-paye` réservés à `hasRole("ADMIN")`. Gérer les fiches ✅ `/ajout-employe`, `/edit-employe`, `/delete-employe`, `/toggle-actif-employe` idem. Valider/refuser une demande ❌ impossible, F4 non exposé. Corriger un pointage ❌ toujours aucune route, cf. F2.)*
+- [x] Rôle MANAGER : tout voir, valider/refuser, corriger les pointages, gérer les fiches. *(implémenté sous le nom `ADMIN`. Tout voir ✅ `/liste-employe`, `/pointages`, `/conge-paye` réservés à `hasRole("ADMIN")`. Gérer les fiches ✅ `/ajout-employe`, `/edit-employe`, `/toggle-actif-employe` idem (`/delete-employe` retiré le 15/08, cf. F1). Valider/refuser une demande ❌ impossible, F4 non exposé. Corriger un pointage ❌ toujours aucune route, cf. F2.)*
 
 **Règles métier**
 - [x] Un manager est aussi un employé (il pointe, il prend des congés) : le rôle s'ajoute, il ne remplace pas. *(dans le modèle de données `User.role` est un enum à valeur unique, pas un ensemble de rôles — mais fonctionnellement respecté : `/mon-pointage` et `/mes-conges` sont ouvertes à tout utilisateur authentifié, admin compris. Le compte ADMIN de démo, Sophie Bernard, reste rattaché à une fiche `Employe` et peut donc s'en servir.)*
@@ -180,8 +180,8 @@ Chaque fonctionnalité est décrite avec son comportement attendu, ses règles e
 
 ## Ordre de réalisation conseillé
 
-1. F1 Employés (le socle, CRUD simple pour prendre en main la stack) — 🚧 date de sortie et validation corrigées ; reste : suppression physique à retirer, filtre serveur actif/poste, re-check email à la modification
-2. F2 Pointage (la mécanique badge + corrections) — 🚧 badge entrée/sortie fonctionnel + vue personnelle `/mon-pointage` ; reste : vérifier l'employé actif, correction manager avec commentaire obligatoire, vue "semaine"
+1. F1 Employés (le socle, CRUD simple pour prendre en main la stack) — ✅ terminé le 15/08
+2. F2 Pointage (la mécanique badge + corrections) — 🚧 badge entrée/sortie fonctionnel + vue personnelle `/mon-pointage` + vérif employé actif (15/08) ; reste : correction manager avec commentaire obligatoire, vue "semaine"
 3. F3 Calcul des heures (avec tests unitaires solides — le module critique) — ❌ à faire
 4. F5 Compteurs (structure + mouvements) — 🚧 structure, lecture globale et lecture personnelle (`/mes-conges`) ok, débit/crédit et historique à raccorder
 5. F4 Absences (s'appuie sur les compteurs) — 🚧 entité et règles écrites, à exposer via repository/service/contrôleur

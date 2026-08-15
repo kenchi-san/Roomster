@@ -27,12 +27,12 @@ Au démarrage, tout se fait automatiquement, sans étape manuelle :
 | Page | Route | Description |
 |---|---|---|
 | Accueil | `GET /` | Page d'atterrissage |
-| Liste des employés | `GET /liste-employe` | Consultation, activation/désactivation, édition et suppression des employés |
+| Liste des employés | `GET /liste-employe` | Consultation (filtrable par statut actif et par poste), activation/désactivation et édition des employés |
 | Ajout d'un employé | `GET/POST /ajout-employe` | Formulaire de création d'un employé (poste, type de contrat...) |
 | Congés payés | `GET /conge-paye` | Compteurs congés/RTT/heures sup par employé, avec historique N-1 |
 | Pointages | `GET /pointages` | Pointage des employés actifs (entrée/sortie) et historique paginé |
 
-Endpoints REST additionnels utilisés en AJAX par les pages ci-dessus : `DELETE /delete-employe/{id}`, `PATCH /toggle-actif-employe/{id}`, `PUT /edit-employe/{id}`, `POST /pointer-employe/{employeId}`.
+Endpoints REST additionnels utilisés en AJAX par les pages ci-dessus : `PATCH /toggle-actif-employe/{id}`, `PUT /edit-employe/{id}`, `POST /pointer-employe/{employeId}`.
 
 ## Frontend / Tailwind CSS
 
