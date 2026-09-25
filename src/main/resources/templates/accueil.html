@@ -18,7 +18,7 @@
         <a th:if="${isAdmin}" th:href="@{/liste-employe}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
             <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Liste des employés</h2>
-            <p class="mt-1 text-sm text-slate-500">Consulter, modifier ou supprimer un employé.</p>
+            <p class="mt-1 text-sm text-slate-500">Consulter, modifier ou désactiver un employé.</p>
         </a>
         <a th:if="${isAdmin}" th:href="@{/ajout-employe}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
@@ -28,7 +28,7 @@
         <a th:if="${isAdmin}" th:href="@{/conge-paye}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
             <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Congés payés (RH)</h2>
-            <p class="mt-1 text-sm text-slate-500">Voir les compteurs CP / RTT de tous les employés.</p>
+            <p class="mt-1 text-sm text-slate-500" th:text="${rttActives} ? 'Voir les compteurs CP / RTT de tous les employés.' : 'Voir les compteurs CP de tous les employés.'"></p>
         </a>
         <a th:if="${isAdmin}" th:href="@{/pointages}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
@@ -40,10 +40,20 @@
             <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Ma pointeuse</h2>
             <p class="mt-1 text-sm text-slate-500">Pointer mon entrée/sortie et voir mon historique.</p>
         </a>
+        <a th:href="@{/mon-planning}"
+           class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+            <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Mon planning</h2>
+            <p class="mt-1 text-sm text-slate-500">Mes horaires de la semaine et qui travaille avec moi.</p>
+        </a>
         <a th:href="@{/mes-conges}"
            class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
             <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Mes congés</h2>
-            <p class="mt-1 text-sm text-slate-500">Voir mon solde CP / RTT.</p>
+            <p class="mt-1 text-sm text-slate-500" th:text="${rttActives} ? 'Voir mon solde CP / RTT.' : 'Voir mon solde de congés payés.'"></p>
+        </a>
+        <a th:href="@{/mes-demandes}"
+           class="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+            <h2 class="font-semibold text-slate-900 group-hover:text-slate-700">Mes demandes d'absence</h2>
+            <p class="mt-1 text-sm text-slate-500">Demander un congé, suivre mes demandes.</p>
         </a>
     </div>
 </main>

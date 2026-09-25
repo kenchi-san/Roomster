@@ -77,6 +77,7 @@ function saveEmploye(id, row) {
             row.querySelector('[data-view="poste"]').textContent = updated.poste;
             row.querySelector('[data-view="typeContrat"]').textContent = updated.typeContrat;
             row.querySelector('[data-view="dateEntree"]').textContent = updated.dateEntree;
+            row.querySelector('[data-view="dateNaissance"]').textContent = updated.dateNaissance || '—';
             updateActifDisplay(row, updated.actif);
             updateDateSortie(row, updated.dateSortie);
             setEditMode(row, false);

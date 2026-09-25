@@ -1,0 +1,7 @@
+<!-- Pastille de couleur pour le statut d'une demande d'absence : une ligne par statut. -->
+<th:block th:fragment="statut(demande)">
+    <span th:if="${demande.statut.name() == 'SOUMISE'}" class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800" th:text="${demande.statut.libelle}"></span>
+    <span th:if="${demande.statut.name() == 'VALIDEE'}" class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800" th:text="${demande.statut.libelle}"></span>
+    <span th:if="${demande.statut.name() == 'REFUSEE'}" class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800" th:text="${demande.statut.libelle}"></span>
+    <span th:if="${demande.statut.name() == 'ANNULEE'}" class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600" th:text="${demande.statut.libelle}"></span>
+</th:block>

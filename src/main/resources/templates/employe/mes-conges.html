@@ -11,37 +11,64 @@
 <aside th:replace="~{fragments/nav :: nav}"></aside>
 
 <main class="mx-auto max-w-4xl flex-1 px-4 py-8">
-    <h1 class="text-2xl font-bold text-slate-900">Mes congés payés / RTT</h1>
+    <h1 class="text-2xl font-bold text-slate-900" th:text="${rttActives} ? 'Mes congés payés / RTT' : 'Mes congés payés'"></h1>
 
     <div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">
             <thead class="bg-slate-50">
             <tr>
-                <th scope="col" rowspan="2" class="px-4 py-3 text-left font-semibold text-slate-600">Année</th>
-                <th scope="col" colspan="3" class="px-4 py-3 text-center font-semibold text-slate-600">N</th>
-                <th scope="col" colspan="3" class="px-4 py-3 text-center font-semibold text-slate-600">N-1</th>
+                <th scope="col" rowspan="2" class="px-4 py-3 text-left font-semibold text-slate-600">Période</th>
+                <th scope="col" th:colspan="${rttActives ? 3 : 2}" class="px-4 py-3 text-center font-semibold text-slate-600">Période en cours</th>
+                <th scope="col" th:colspan="${rttActives ? 3 : 2}" class="px-4 py-3 text-center font-semibold text-slate-600">Période précédente</th>
             </tr>
             <tr>
                 <th scope="col" class="px-4 py-2 text-left font-medium text-slate-500">Solde CP</th>
-                <th scope="col" class="px-4 py-2 text-left font-medium text-slate-500">Solde RTT</th>
+                <th scope="col" th:if="${rttActives}" class="px-4 py-2 text-left font-medium text-slate-500">Solde RTT</th>
                 <th scope="col" class="px-4 py-2 text-left font-medium text-slate-500">Heures sup.</th>
                 <th scope="col" class="px-4 py-2 text-left font-medium text-slate-500">Solde CP</th>
-                <th scope="col" class="px-4 py-2 text-left font-medium text-slate-500">Solde RTT</th>
+                <th scope="col" th:if="${rttActives}" class="px-4 py-2 text-left font-medium text-slate-500">Solde RTT</th>
                 <th scope="col" class="px-4 py-2 text-left font-medium text-slate-500">Heures sup.</th>
             </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
             <tr th:each="c : ${compteur}" class="hover:bg-slate-50">
-                <td class="px-4 py-3 text-slate-600" th:text="${c.annee}"></td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-600" th:text="${c.periode}"></td>
                 <td class="px-4 py-3 text-slate-600" th:text="${c.soldeCongesPayes}"></td>
-                <td class="px-4 py-3 text-slate-600" th:text="${c.soldeRtt}"></td>
-                <td class="px-4 py-3 text-slate-600" th:text="${c.heuresSupCumulees}"></td>
+                <td th:if="${rttActives}" class="px-4 py-3 text-slate-600" th:text="${c.soldeRtt}"></td>
+                <td class="px-4 py-3 text-slate-600" th:text="${c.heuresSupTexte}"></td>
                 <td class="px-4 py-3 text-slate-400" th:text="${c.soldeCongesPayesN1} ?: '-'"></td>
-                <td class="px-4 py-3 text-slate-400" th:text="${c.soldeRttN1} ?: '-'"></td>
-                <td class="px-4 py-3 text-slate-400" th:text="${c.heuresSupCumuleesN1} ?: '-'"></td>
+                <td th:if="${rttActives}" class="px-4 py-3 text-slate-400" th:text="${c.soldeRttN1} ?: '-'"></td>
+                <td class="px-4 py-3 text-slate-400" th:text="${c.heuresSupN1Texte}"></td>
             </tr>
             <tr th:if="${#lists.isEmpty(compteur)}">
-                <td class="px-4 py-3 text-slate-400" colspan="7">Aucun compteur enregistré.</td>
+                <td class="px-4 py-3 text-slate-400" th:colspan="${rttActives ? 7 : 5}">Aucun compteur enregistré.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Historique des mouvements : qui a débité / crédité quoi, quand et pourquoi -->
+    <h2 class="mt-10 text-xl font-bold text-slate-900">Historique de mes compteurs</h2>
+    <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+            <tr>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Le</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Mouvement</th>
+                <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">CP</th>
+                <th scope="col" th:if="${rttActives}" class="px-4 py-3 text-right font-semibold text-slate-600">RTT</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Par</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            <tr th:each="m : ${mouvements}">
+                <td class="whitespace-nowrap px-4 py-3 text-slate-600" th:text="${#temporals.format(m.date, 'dd/MM/yyyy HH:mm')}"></td>
+                <td class="px-4 py-3 text-slate-900" th:text="${m.libelle}"></td>
+                <td class="px-4 py-3 text-right text-slate-600" th:text="${m.joursCongesPayes != 0 ? m.joursCongesPayes : ''}"></td>
+                <td th:if="${rttActives}" class="px-4 py-3 text-right text-slate-600" th:text="${m.joursRtt != 0 ? m.joursRtt : ''}"></td>
+                <td class="px-4 py-3 text-slate-500" th:text="${m.auteur}"></td>
+            </tr>
+            <tr th:if="${mouvements.isEmpty()}">
+                <td class="px-4 py-3 text-slate-400" th:colspan="${rttActives ? 5 : 4}">Aucun mouvement enregistré.</td>
             </tr>
             </tbody>
         </table>

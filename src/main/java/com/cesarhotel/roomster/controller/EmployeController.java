@@ -54,6 +54,10 @@ public class EmployeController {
                                BindingResult bindingResult,
                                Model model,
                                RedirectAttributes redirectAttributes) {
+        // L'email est l'identifiant de connexion : il doit être unique
+        if (dto.getEmail() != null && employeRepository.existsByUserEmail(dto.getEmail())) {
+            bindingResult.rejectValue("email", "email.existe", "Un employé avec cet email existe déjà");
+        }
         if (bindingResult.hasErrors()) {
             model.addAttribute("postes", Poste.values());
             model.addAttribute("typesContrat", TypeContrat.values());

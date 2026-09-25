@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Planning</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
+
+<main class="mx-auto max-w-7xl flex-1 px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Planning</h1>
+
+    <div th:replace="~{fragments/messages :: messages}"></div>
+
+    <!-- Navigation entre les semaines -->
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm font-medium text-slate-900"
+           th:text="'Du ' + ${#temporals.format(planning.lundi, 'dd/MM/yyyy')} + ' au ' + ${#temporals.format(planning.dimanche, 'dd/MM/yyyy')}"></p>
+        <div class="flex flex-wrap gap-2 text-sm">
+            <a th:href="@{/planning(semaine=${planning.semainePrecedente})}"
+               class="rounded-md border border-slate-300 bg-white px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">← Semaine précédente</a>
+            <a th:href="@{/planning}"
+               class="rounded-md border border-slate-300 bg-white px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Cette semaine</a>
+            <a th:href="@{/planning(semaine=${planning.semaineSuivante})}"
+               class="rounded-md border border-slate-300 bg-white px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Semaine suivante →</a>
+            <form th:action="@{/planning/copier-semaine(semaine=${planning.lundi})}" method="post">
+                <button type="submit"
+                        class="rounded-md bg-slate-900 px-3 py-1 font-medium text-white transition hover:bg-slate-700">
+                    Copier la semaine précédente
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Légende -->
+    <div class="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600">
+        <span class="font-semibold text-slate-700">Légende :</span>
+        <span class="rounded bg-slate-100 px-1.5 py-0.5 text-slate-800">08:00 → 16:00</span> créneau
+        <span class="rounded bg-indigo-900 px-1.5 py-0.5 text-white">22:00 → 06:00</span> nuit
+        <span class="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-800">Congé payé</span>
+        <span class="rounded-full bg-rose-100 px-2 py-0.5 font-medium text-rose-800">Maladie</span>
+        <span th:if="${rttActives}" class="rounded-full bg-sky-100 px-2 py-0.5 font-medium text-sky-800">RTT</span>
+        <span class="rounded-full bg-fuchsia-100 px-2 py-0.5 font-medium text-fuchsia-800">Récup. jour férié</span>
+        <span class="rounded-full bg-slate-200 px-2 py-0.5 font-medium text-slate-700">Sans solde</span>
+        <span class="rounded-full border border-dashed border-slate-500 bg-white px-2 py-0.5 font-medium text-slate-700">en attente</span>
+        <span class="rounded-full bg-violet-100 px-2 py-0.5 font-medium text-violet-800">Jour férié</span>
+        <span class="rounded bg-red-50 px-1.5 py-0.5 font-medium text-red-700 ring-1 ring-red-300">⚠ conflit</span>
+        <span class="text-slate-400">|</span>
+        <span>Aujourd’hui :</span>
+        <span class="font-medium text-emerald-700">● présent</span>
+        <span class="font-medium text-slate-600">✓ pointé</span>
+        <span class="font-medium text-red-700">✗ pas pointé</span>
+    </div>
+
+    <!-- La grille : une ligne par employé, une colonne par jour -->
+    <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+            <tr>
+                <th scope="col" class="px-3 py-3 text-left font-semibold text-slate-600">Employé</th>
+                <th scope="col" th:each="libelle, i : ${planning.jours}" class="px-3 py-3 text-left font-semibold text-slate-600"
+                    th:classappend="${planning.dates[i.index] == #temporals.createToday()} ? 'bg-sky-50'">
+                    <span class="capitalize" th:text="${libelle}"></span>
+                    <span th:if="${planning.feries[i.index] != null}" th:text="${planning.feries[i.index]}"
+                          class="mt-1 block w-fit rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-800"></span>
+                </th>
+                <th scope="col" class="px-3 py-3 text-right font-semibold text-slate-600">Prévu / contrat</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            <th:block th:each="ligne : ${planning.lignes}">
+                <tr class="align-top">
+                    <td class="whitespace-nowrap px-3 py-3">
+                        <p class="font-medium text-slate-900" th:text="${ligne.nom}"></p>
+                        <p class="text-xs text-slate-500" th:text="${ligne.poste}"></p>
+                    </td>
+                    <td th:each="cellule : ${ligne.cellules}" class="min-w-32 px-3 py-3"
+                        th:classappend="${cellule.conflit} ? 'bg-red-50 ring-1 ring-inset ring-red-300'
+                                        : (${cellule.jour == #temporals.createToday()} ? 'bg-sky-50/50')">
+                        <!-- Absence validée et demande en attente -->
+                        <div th:if="${cellule.absence != null}" class="mb-1"
+                             th:insert="~{fragments/absence :: badge(${cellule.absence}, false)}"></div>
+                        <div th:if="${cellule.demandeEnAttente != null}" class="mb-1"
+                             th:insert="~{fragments/absence :: badge(${cellule.demandeEnAttente}, true)}"></div>
+                        <p th:if="${cellule.conflit}" class="mb-1 text-xs font-medium text-red-700">⚠ planifié pendant l’absence</p>
+
+                        <!-- Créneaux -->
+                        <div th:each="creneau : ${cellule.creneaux}" class="mb-1">
+                            <div class="flex items-start gap-1">
+                                <span class="rounded px-1.5 py-0.5 text-xs"
+                                      th:classappend="${creneau.deNuit} ? 'bg-indigo-900 text-white' : 'bg-slate-100 text-slate-800'"
+                                      th:text="${creneau.horaires}"></span>
+                                <form th:action="@{/planning/creneaux/{id}/supprimer(id=${creneau.id}, semaine=${planning.lundi})}" method="post">
+                                    <button type="submit" title="Supprimer ce créneau"
+                                            class="rounded px-1 text-xs text-slate-400 transition hover:bg-red-50 hover:text-red-600">✕</button>
+                                </form>
+                            </div>
+                            <p th:if="${creneau.note != null}" th:text="${creneau.note}" class="mt-0.5 text-xs italic text-slate-500"></p>
+                        </div>
+
+                        <!-- Aujourd'hui : pointé ou non -->
+                        <p th:if="${cellule.statutDuJour == 'PRESENT'}" class="text-xs font-medium text-emerald-700">● présent</p>
+                        <p th:if="${cellule.statutDuJour == 'POINTE'}" class="text-xs font-medium text-slate-600">✓ pointé</p>
+                        <p th:if="${cellule.statutDuJour == 'NON_POINTE'}" class="text-xs font-medium text-red-700">✗ pas pointé</p>
+
+                        <a th:if="${cellule.absence == null}"
+                           th:href="@{/planning(semaine=${planning.lundi}, employeId=${ligne.employeId}, jour=${cellule.jour})} + '#ajout'"
+                           title="Ajouter un créneau"
+                           class="inline-block rounded px-1.5 text-xs font-medium text-slate-400 transition hover:bg-slate-100 hover:text-slate-900">+</a>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3 text-right">
+                        <th:block th:if="${ligne.comparaisonContrat == 'SOUS'}">
+                            <span class="rounded-md bg-amber-100 px-2 py-0.5 text-sm font-medium text-amber-800"
+                                  th:text="${ligne.totalPrevu} + ' / ' + ${ligne.contrat}"></span>
+                            <p class="mt-1 text-xs text-slate-500">sous le contrat</p>
+                        </th:block>
+                        <th:block th:if="${ligne.comparaisonContrat == 'EGAL'}">
+                            <span class="rounded-md bg-emerald-100 px-2 py-0.5 text-sm font-medium text-emerald-800"
+                                  th:text="${ligne.totalPrevu} + ' / ' + ${ligne.contrat}"></span>
+                            <p class="mt-1 text-xs text-slate-500">conforme au contrat</p>
+                        </th:block>
+                        <th:block th:if="${ligne.comparaisonContrat == 'AU_DESSUS'}">
+                            <span class="rounded-md bg-sky-100 px-2 py-0.5 text-sm font-medium text-sky-800"
+                                  th:text="${ligne.totalPrevu} + ' / ' + ${ligne.contrat}"></span>
+                            <p class="mt-1 text-xs text-slate-500">heures sup prévues</p>
+                        </th:block>
+                    </td>
+                </tr>
+                <!-- Contrôles HCR sur le planning prévu, avant le travail -->
+                <tr th:unless="${ligne.alertes.isEmpty()}">
+                    <td colspan="9" class="bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                        <p th:each="alerte : ${ligne.alertes}" th:text="'⚠ ' + ${ligne.nom} + ' — ' + ${alerte}"></p>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+            <!-- Effectif prévu par jour -->
+            <tfoot class="bg-slate-50 text-xs">
+            <tr class="align-top">
+                <td class="px-3 py-3 font-semibold text-slate-700">Effectif prévu</td>
+                <td th:each="effectif, i : ${planning.effectifs}" class="px-3 py-3">
+                    <p class="text-sm font-semibold text-slate-900"
+                       th:text="${effectif} + ' pers. · ' + ${planning.heuresPrevues[i.index]}"></p>
+                    <p class="mt-0.5 text-slate-500" th:text="${planning.repartitionPostes[i.index]}"></p>
+                    <p th:if="${planning.absents[i.index] > 0}" class="mt-0.5 font-medium text-rose-700"
+                       th:text="${planning.absents[i.index]} + ' absent(s)'"></p>
+                </td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Ajouter un créneau -->
+    <h2 id="ajout" class="mt-10 text-xl font-bold text-slate-900">Ajouter un créneau</h2>
+    <form th:action="@{/planning/creneaux}" method="post"
+          class="mt-4 grid gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-6 sm:items-end">
+        <div class="sm:col-span-2">
+            <label for="employeId" class="block text-sm font-medium text-slate-700">Employé</label>
+            <select id="employeId" name="employeId" required
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+                <option th:each="e : ${employes}" th:value="${e.id}" th:text="${e.user.prenom + ' ' + e.user.nom}"
+                        th:selected="${e.id == employeChoisi}"></option>
+            </select>
+        </div>
+        <div>
+            <label for="jour" class="block text-sm font-medium text-slate-700">Jour</label>
+            <input type="date" id="jour" name="jour" required th:value="${jourChoisi != null ? jourChoisi : planning.lundi}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+        </div>
+        <div>
+            <label for="debut" class="block text-sm font-medium text-slate-700">Début</label>
+            <input type="time" id="debut" name="debut" required value="08:00"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+        </div>
+        <div>
+            <label for="fin" class="block text-sm font-medium text-slate-700">Fin</label>
+            <input type="time" id="fin" name="fin" required value="16:00"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+        </div>
+        <div>
+            <label for="note" class="block text-sm font-medium text-slate-700">Note</label>
+            <input type="text" id="note" name="note" placeholder="Facultative"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+        </div>
+        <button type="submit"
+                class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 sm:col-span-6 sm:w-fit">
+            Ajouter le créneau
+        </button>
+        <p class="text-xs text-slate-500 sm:col-span-6">
+            Un créneau dure <strong>12h au maximum</strong>.
+            Une fin avant le début (ex : 22:00 → 06:00) signifie que le créneau se termine le lendemain.
+            Refusé si le créneau chevauche un autre créneau de l’employé ou tombe sur une absence validée
+            (une demande encore en attente n’empêche pas de planifier, mais elle est signalée en pointillé).
+            Les règles HCR (durées maximales, repos de 11h, mineurs) sont vérifiées sur le planning : les alertes apparaissent sous l’employé.
+            Pour modifier un créneau : supprimez-le (✕) puis ajoutez-le à nouveau.
+        </p>
+    </form>
+</main>
+</div>
+</body>
+</html>

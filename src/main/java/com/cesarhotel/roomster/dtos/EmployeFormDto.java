@@ -40,4 +40,7 @@ public class EmployeFormDto {
     @NotNull(message = "La durée hebdomadaire est obligatoire")
     @DecimalMin(value = "0.0", inclusive = false, message = "La durée hebdomadaire doit être positive")
     private Double dureeHebdoHeures;
+
+    /** Facultative (règles des moins de 18 ans). */
+    private LocalDate dateNaissance;
 }

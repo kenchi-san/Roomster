@@ -32,6 +32,7 @@ public class EmployeDto {
     private LocalDate dateEntree;
 
     private LocalDate dateSortie;
+    private LocalDate dateNaissance;
 
     private Boolean actif;
 

@@ -31,4 +31,12 @@ public class Pointage {
 
     /** Ex : "oubli de badge, corrigé par le manager". */
     private String commentaire;
+
+    /**
+     * Vrai si la sortie a été mise automatiquement (entrée + 12h) parce que l'employé n'a pas pointé sa sortie.
+     * Alerte pour le manager, qui doit la valider avec un commentaire (ou corriger l'heure) : repasse alors à faux.
+     * "default false" : la colonne peut être ajoutée à une table qui contient déjà des pointages.
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean sortieAutomatique;
 }

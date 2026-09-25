@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Paramètres</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
+
+<main class="mx-auto max-w-3xl flex-1 px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Paramètres de l’hôtel</h1>
+
+    <div th:replace="~{fragments/messages :: messages}"></div>
+
+    <form th:action="@{/parametres}" method="post"
+          class="mt-6 space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="font-semibold text-slate-900">RTT</h2>
+
+        <label class="flex items-start gap-3">
+            <input type="checkbox" name="rttActives" value="true" th:checked="${rttActives}"
+                   class="mt-1 h-4 w-4 rounded border-slate-300">
+            <span>
+                <span class="block text-sm font-medium text-slate-900">L’hôtel accorde des RTT</span>
+                <span class="mt-1 block text-sm text-slate-500">
+                    La convention HCR ne prévoit pas de RTT : en hôtellerie-restauration, les heures de la 36e à la 39e
+                    sont en général payées en heures sup. Cochez seulement si un <strong>accord d’entreprise</strong>
+                    met en place des RTT.
+                </span>
+                <span class="mt-2 block text-sm text-slate-500">
+                    Décoché : le type « RTT » n’est plus proposé aux salariés (et une demande de RTT est refusée), les soldes
+                    et colonnes RTT sont masqués (compteurs, mouvements, légende du planning, exports). Rien n’est effacé :
+                    les soldes et l’historique existants restent en base et réapparaissent si vous recochez.
+                    Coché : les RTT sont gérés comme les CP, avec des soldes saisis à la main dans « Congés (RH) ».
+                </span>
+            </span>
+        </label>
+
+        <button type="submit"
+                class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700">
+            Enregistrer
+        </button>
+    </form>
+</main>
+</div>
+</body>
+</html>

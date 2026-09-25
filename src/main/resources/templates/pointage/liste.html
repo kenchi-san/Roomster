@@ -24,7 +24,11 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
             <tr th:each="employe : ${employes}" th:attr="data-id=${employe.id}" class="hover:bg-slate-50">
-                <td class="px-4 py-3 text-slate-900" th:text="${employe.user.prenom + ' ' + employe.user.nom}"></td>
+                <td class="px-4 py-3">
+                    <a th:href="@{/pointages/semaine/{id}(id=${employe.id})}" title="Voir la semaine"
+                       class="font-medium text-slate-900 underline decoration-slate-300 underline-offset-2 transition hover:decoration-slate-900"
+                       th:text="${employe.user.prenom + ' ' + employe.user.nom}"></a>
+                </td>
                 <td class="px-4 py-3">
                     <span data-view="pointage-statut" class="text-slate-600"
                           th:text="${pointagesOuverts.get(employe.id) != null
@@ -50,18 +54,41 @@
                     <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Entrée</th>
                     <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Sortie</th>
                     <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Commentaire</th>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Action</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                <tr th:each="pointage : ${historique}" class="hover:bg-slate-50">
+                <tr th:each="pointage : ${historique}" th:attr="data-id=${pointage.id}" class="hover:bg-slate-50">
                     <td class="px-4 py-3 text-slate-900" th:text="${pointage.employe.user.prenom + ' ' + pointage.employe.user.nom}"></td>
-                    <td class="px-4 py-3 text-slate-600" th:text="${#temporals.format(pointage.entree, 'dd/MM/yyyy HH:mm')}"></td>
-                    <td class="px-4 py-3 text-slate-600"
-                        th:text="${pointage.sortie != null ? #temporals.format(pointage.sortie, 'dd/MM/yyyy HH:mm') : '—'}"></td>
-                    <td class="px-4 py-3 text-slate-500" th:text="${pointage.commentaire ?: '—'}"></td>
+                    <td class="px-4 py-3 text-slate-600">
+                        <span data-view="entree" th:text="${#temporals.format(pointage.entree, 'dd/MM/yyyy HH:mm')}"></span>
+                        <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                               data-field="entree" type="datetime-local" th:value="${#temporals.format(pointage.entree, 'yyyy-MM-dd''T''HH:mm')}">
+                    </td>
+                    <td class="px-4 py-3 text-slate-600">
+                        <span data-view="sortie"
+                              th:text="${pointage.sortie != null ? #temporals.format(pointage.sortie, 'dd/MM/yyyy HH:mm') : '—'}"></span>
+                        <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                               data-field="sortie" type="datetime-local"
+                               th:value="${pointage.sortie != null ? #temporals.format(pointage.sortie, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                    </td>
+                    <td class="px-4 py-3 text-slate-500">
+                        <span data-view="commentaire" th:text="${pointage.commentaire ?: '—'}"></span>
+                        <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                               data-field="commentaire" type="text" placeholder="Motif de la correction (obligatoire)"
+                               th:value="${pointage.commentaire}">
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="btn-edit-pointage rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Corriger</button>
+                            <button type="button" class="btn-save-pointage hidden rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-emerald-500">Enregistrer</button>
+                            <button type="button" class="btn-cancel-pointage hidden rounded-md px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Annuler</button>
+                        </div>
+                        <p data-error-pointage class="hidden mt-1.5 max-w-[16rem] text-xs text-red-600"></p>
+                    </td>
                 </tr>
                 <tr th:if="${historique.totalElements == 0}">
-                    <td class="px-4 py-3 text-slate-400" colspan="4">Aucun pointage enregistré.</td>
+                    <td class="px-4 py-3 text-slate-400" colspan="5">Aucun pointage enregistré.</td>
                 </tr>
                 </tbody>
             </table>

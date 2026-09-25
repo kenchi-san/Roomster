@@ -1,14 +1,19 @@
 package com.cesarhotel.roomster.model;
 
+import com.cesarhotel.roomster.exception.ValidationException;
+import com.cesarhotel.roomster.service.CalculConges;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "demande_absence")
 public class DemandeAbsence {
     @Id
@@ -46,6 +51,14 @@ public class DemandeAbsence {
 
     private String motifRefus;
 
+    public DemandeAbsence(Employe employe, TypeAbsence type, LocalDate debut, LocalDate fin) {
+        this.employe = employe;
+        this.type = type;
+        this.debut = debut;
+        this.fin = fin;
+        this.dateSoumission = LocalDateTime.now();
+    }
+
     public void valider(Employe validateur) {
         exigerStatut(StatutDemande.SOUMISE, "valider");
         this.statut = StatutDemande.VALIDEE;
@@ -63,24 +76,46 @@ public class DemandeAbsence {
 
     public void annuler() {
         if (statut != StatutDemande.SOUMISE && statut != StatutDemande.VALIDEE) {
-            throw new IllegalStateException(
-                    "Impossible d'annuler une demande au statut " + statut);
+            throw new ValidationException(
+                    "Impossible d'annuler une demande " + statut.getLibelle().toLowerCase());
         }
         this.statut = StatutDemande.ANNULEE;
     }
 
     private void exigerStatut(StatutDemande attendu, String action) {
         if (statut != attendu) {
-            throw new IllegalStateException(
-                    "Impossible de %s une demande au statut %s".formatted(action, statut));
+            throw new ValidationException(
+                    "Impossible de %s une demande %s".formatted(action, statut.getLibelle().toLowerCase()));
         }
     }
 
     // --- Méthodes métier ---
 
-    /** Nombre de jours calendaires couverts par la demande (bornes incluses). */
+    /**
+     * Nombre de jours décomptés pour cette demande (bornes incluses).
+     *
+     * - Congé payé et RTT : jours OUVRABLES (lundi → samedi, sans les jours fériés), comme le prévoit
+     *   la convention HCR. Une semaine complète de congé (lundi → dimanche) coûte donc 6 jours, pas 7.
+     * - Autres types (maladie, sans solde…) : jours calendaires, ils ne débitent aucun compteur.
+     */
     public long nombreDeJours() {
+        if (type == TypeAbsence.CONGE_PAYE || type == TypeAbsence.RTT) {
+            return CalculConges.joursOuvrables(debut, fin);
+        }
         return ChronoUnit.DAYS.between(debut, fin) + 1;
+    }
+
+    /** L'employé peut annuler une demande en attente ou validée, tant qu'elle n'a pas commencé. */
+    public boolean isAnnulable() {
+        boolean statutOk = statut == StatutDemande.SOUMISE || statut == StatutDemande.VALIDEE;
+        return statutOk && debut.isAfter(LocalDate.now());
+    }
+
+    /** Ex : "du 03/08/2026 au 14/08/2026 (11 j ouvrables)" pour un CP, "(3 j)" pour une maladie. */
+    public String getPeriode() {
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String unite = (type == TypeAbsence.CONGE_PAYE || type == TypeAbsence.RTT) ? " j ouvrables" : " j";
+        return "du " + debut.format(format) + " au " + fin.format(format) + " (" + nombreDeJours() + unite + ")";
     }
 
     /** La demande chevauche-t-elle la période donnée ? */

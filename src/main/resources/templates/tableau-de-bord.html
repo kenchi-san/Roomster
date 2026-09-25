@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tableau de bord</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
+
+<main class="mx-auto max-w-6xl flex-1 px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Tableau de bord</h1>
+    <p class="mt-1 text-sm text-slate-500">Présences d'après les pointages ; « prévus » d'après le planning.</p>
+
+    <div th:replace="~{fragments/messages :: messages}"></div>
+
+    <!-- Aujourd'hui -->
+    <h2 class="mt-8 text-xl font-bold text-slate-900">Aujourd'hui</h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-emerald-700" th:text="'Présents (' + ${tableau.presents.size()} + ')'"></h3>
+            <p th:each="nom : ${tableau.presents}" class="mt-1 text-sm text-slate-700" th:text="${nom}"></p>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-slate-700" th:text="'Journée terminée (' + ${tableau.partis.size()} + ')'"></h3>
+            <p th:each="nom : ${tableau.partis}" class="mt-1 text-sm text-slate-700" th:text="${nom}"></p>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-sky-700" th:text="'Absents (' + ${tableau.absents.size()} + ')'"></h3>
+            <p th:each="nom : ${tableau.absents}" class="mt-1 text-sm text-slate-700" th:text="${nom}"></p>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-slate-500" th:text="'Sans pointage (' + ${tableau.sansPointage.size()} + ')'"></h3>
+            <p th:each="nom : ${tableau.sansPointage}" class="mt-1 text-sm text-slate-700" th:text="${nom}"></p>
+        </div>
+    </div>
+
+    <!-- Planning du jour -->
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-slate-700" th:text="'Prévus aujourd’hui au planning (' + ${tableau.prevus.size()} + ')'"></h3>
+            <p th:if="${tableau.prevus.isEmpty()}" class="mt-1 text-sm text-slate-400">Personne n'est prévu.</p>
+            <p th:each="texte : ${tableau.prevus}" class="mt-1 text-sm text-slate-700" th:text="${texte}"></p>
+            <a th:href="@{/planning}" class="mt-3 inline-block text-sm font-medium text-slate-900 underline underline-offset-2">Voir le planning →</a>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-amber-700" th:text="'Prévus mais pas pointés (' + ${tableau.prevusNonPointes.size()} + ')'"></h3>
+            <p th:if="${tableau.prevusNonPointes.isEmpty()}" class="mt-1 text-sm text-slate-400">Aucun.</p>
+            <p th:each="texte : ${tableau.prevusNonPointes}" class="mt-1 text-sm text-slate-700" th:text="${texte}"></p>
+            <p class="mt-3 text-xs text-slate-400">Créneau déjà commencé, sans pointage ni absence validée : retard ou absence imprévue.</p>
+        </div>
+    </div>
+
+    <!-- Demandes en attente -->
+    <h2 class="mt-10 text-xl font-bold text-slate-900" th:text="'Demandes en attente (' + ${tableau.demandesEnAttente.size()} + ')'"></h2>
+    <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p th:if="${tableau.demandesEnAttente.isEmpty()}" class="text-sm text-slate-400">Aucune demande en attente.</p>
+        <p th:each="d : ${tableau.demandesEnAttente}" class="mt-1 text-sm text-slate-700"
+           th:text="${d.employe.user.prenom + ' ' + d.employe.user.nom + ' — ' + d.type.libelle + ' ' + d.periode}"></p>
+        <a th:unless="${tableau.demandesEnAttente.isEmpty()}" th:href="@{/demandes}"
+           class="mt-3 inline-block text-sm font-medium text-slate-900 underline underline-offset-2">Traiter les demandes →</a>
+    </div>
+
+    <!-- Conformité HCR -->
+    <h2 class="mt-10 text-xl font-bold text-slate-900" th:text="'Convention HCR (' + ${tableau.alertesHCR.size()} + ')'"></h2>
+    <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p th:if="${tableau.alertesHCR.isEmpty()}" class="text-sm text-slate-400">Aucun dépassement cette semaine ni la semaine dernière.</p>
+        <p th:each="alerte : ${tableau.alertesHCR}" th:text="${alerte}" class="mt-1 text-sm text-amber-800"></p>
+        <p class="mt-3 text-xs text-slate-400">
+            Contrôlé sur la semaine en cours et la précédente : durée maximale par jour (11h cuisinier, 12h veilleur de nuit,
+            11h30 autres, 8h mineur), par semaine (48h, 35h mineur), repos de 11h entre deux journées (12h mineur),
+            nuit des mineurs (23h30 → 6h). Contingent annuel : 360h d'heures sup.
+        </p>
+    </div>
+
+    <!-- Anomalies -->
+    <h2 class="mt-10 text-xl font-bold text-slate-900">Anomalies</h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-amber-700" th:text="'Sorties automatiques à valider (' + ${tableau.sortiesAutomatiques.size()} + ')'"></h3>
+            <p th:if="${tableau.sortiesAutomatiques.isEmpty()}" class="mt-1 text-sm text-slate-400">Aucune.</p>
+            <div th:each="p : ${tableau.sortiesAutomatiques}" class="mt-3 border-t border-slate-100 pt-3 text-sm">
+                <a th:href="@{/pointages/semaine/{id}(id=${p.employe.id}, semaine=${p.entree.toLocalDate()})}"
+                   th:text="${p.employe.user.prenom + ' ' + p.employe.user.nom + ' — entré le ' + #temporals.format(p.entree, 'dd/MM à HH:mm')
+                            + ', clôturé à ' + #temporals.format(p.sortie, 'HH:mm')}"
+                   class="font-medium text-slate-800 underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900"></a>
+                <form th:action="@{/pointages/{id}/valider-sortie(id=${p.id})}" method="post" class="mt-2 flex flex-wrap gap-2">
+                    <input type="text" name="commentaire" required placeholder="Commentaire de validation (obligatoire)"
+                           class="min-w-56 flex-1 rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+                    <button type="submit" class="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-emerald-500">Valider</button>
+                </form>
+            </div>
+            <p class="mt-3 text-xs text-slate-400">
+                Pas de pointage de sortie : la personne est sortie d’office 12h après son entrée (durée maximale).
+                Validez avec un commentaire (le lendemain ou plus tard), ou corrigez l’heure réelle depuis « Pointages (RH) ».
+                L’alerte reste affichée tant qu’elle n’est pas traitée.
+            </p>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 class="font-semibold text-amber-700" th:text="'Prévus ' + ${tableau.hier} + ' mais sans pointage (' + ${tableau.prevusHierSansPointage.size()} + ')'"></h3>
+            <p th:if="${tableau.prevusHierSansPointage.isEmpty()}" class="mt-1 text-sm text-slate-400">Aucun.</p>
+            <p th:each="texte : ${tableau.prevusHierSansPointage}" class="mt-1 text-sm text-slate-700" th:text="${texte}"></p>
+            <p class="mt-3 text-xs text-slate-400">Prévus au planning, sans pointage ni absence validée : oubli de badge ou absence à régulariser.</p>
+        </div>
+    </div>
+</main>
+</div>
+</body>
+</html>
