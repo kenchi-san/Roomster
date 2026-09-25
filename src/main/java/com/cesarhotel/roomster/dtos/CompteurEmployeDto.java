@@ -2,6 +2,7 @@ package com.cesarhotel.roomster.dtos;
 
 import com.cesarhotel.roomster.model.Employe;
 import com.cesarhotel.roomster.model.Poste;
+import com.cesarhotel.roomster.service.CalculHeures;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,4 +35,21 @@ public class CompteurEmployeDto {
     private Double soldeRttN1;
 
     private Duration heuresSupCumuleesN1;
+
+    // --- Affichage ---
+
+    /** Ex : "juin 2026 → mai 2027" pour annee = 2026. */
+    public String getPeriode() {
+        return "juin " + annee + " → mai " + (annee + 1);
+    }
+
+    // "7h15" plutôt que "PT7H15M"
+
+    public String getHeuresSupTexte() {
+        return CalculHeures.formater(heuresSupCumulees);
+    }
+
+    public String getHeuresSupN1Texte() {
+        return heuresSupCumuleesN1 == null ? "-" : CalculHeures.formater(heuresSupCumuleesN1);
+    }
 }

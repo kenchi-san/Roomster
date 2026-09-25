@@ -1,0 +1,5 @@
+<!-- Messages "succès" / "erreur" envoyés par les contrôleurs après un formulaire (flash attributes). -->
+<div th:fragment="messages">
+    <div th:if="${succes}" class="mt-6 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800" th:text="${succes}"></div>
+    <div th:if="${erreur}" class="mt-6 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800" th:text="${erreur}"></div>
+</div>

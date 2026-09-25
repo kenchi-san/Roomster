@@ -48,4 +48,17 @@ public class Employe {
     @Column(nullable = false)
     private boolean actif = true;
 
+    /** Facultative. Sert à appliquer les règles des salariés de moins de 18 ans (apprentis). */
+    private LocalDate dateNaissance;
+
+    /** L'employé a-t-il moins de 18 ans à cette date ? Faux si la date de naissance n'est pas renseignée. */
+    public boolean estMineurLe(LocalDate jour) {
+        return dateNaissance != null && jour.isBefore(dateNaissance.plusYears(18));
+    }
+
+    /** L'employé a-t-il au moins un an d'ancienneté à cette date ? (jours fériés garantis HCR) */
+    public boolean aUnAnDAncienneteLe(LocalDate jour) {
+        return !jour.isBefore(dateEntree.plusYears(1));
+    }
+
 }

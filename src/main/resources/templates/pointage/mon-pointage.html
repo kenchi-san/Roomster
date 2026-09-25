@@ -26,6 +26,10 @@
                 th:text="${pointageOuvert != null ? 'Pointer la sortie' : 'Pointer l''entrée'}"></button>
     </div>
 
+    <h2 class="mt-10 text-xl font-bold text-slate-900">Ma semaine</h2>
+    <div class="mt-4"
+         th:insert="~{fragments/semaine-pointages :: semaine(${semaine}, '/mon-pointage')}"></div>
+
     <h2 class="mt-10 text-xl font-bold text-slate-900">Mon historique</h2>
     <div class="mt-4 rounded-xl border border-slate-200 bg-white shadow-sm">
         <div class="overflow-x-auto">

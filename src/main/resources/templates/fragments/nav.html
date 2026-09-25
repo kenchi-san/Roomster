@@ -5,16 +5,28 @@
 
         <nav class="mt-8 flex flex-col gap-1 text-sm font-medium text-slate-300">
             <a th:href="@{/mon-pointage}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Ma pointeuse</a>
+            <a th:href="@{/mon-planning}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Mon planning</a>
             <a th:href="@{/mes-conges}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Mes congés</a>
+            <a th:href="@{/mes-demandes}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Mes demandes d'absence</a>
             <a th:href="@{/mon-compte}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Mon compte</a>
 
             <div th:if="${isAdmin}" class="mt-6 border-t border-slate-800 pt-6">
                 <p class="px-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">Administration</p>
                 <div class="mt-2 flex flex-col gap-1">
+                    <a th:href="@{/tableau-de-bord}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Tableau de bord</a>
+                    <a th:href="@{/planning}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Planning</a>
+                    <a th:href="@{/demandes}" class="flex items-center justify-between rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">
+                        Demandes d'absence
+                        <span th:if="${nbDemandesEnAttente > 0}" th:text="${nbDemandesEnAttente}"
+                              class="rounded-full bg-amber-400 px-2 text-xs font-semibold text-slate-900"></span>
+                    </a>
                     <a th:href="@{/liste-employe}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Employés</a>
                     <a th:href="@{/ajout-employe}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Ajouter un employé</a>
                     <a th:href="@{/conge-paye}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Congés (RH)</a>
                     <a th:href="@{/pointages}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Pointages (RH)</a>
+                    <a th:href="@{/pointages/mois}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Récap mensuel (paie)</a>
+                    <a th:href="@{/exports}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Exports comptables</a>
+                    <a th:href="@{/parametres}" class="rounded-md px-3 py-2 transition hover:bg-slate-800 hover:text-white">Paramètres</a>
                 </div>
             </div>
         </nav>

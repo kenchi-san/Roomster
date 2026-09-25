@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Récap mensuel</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
+
+<main class="mx-auto max-w-5xl flex-1 px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900">Récapitulatif mensuel des heures</h1>
+
+    <div class="mt-6 rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+            <p class="text-sm font-medium capitalize text-slate-900" th:text="${recap.libelle}"></p>
+            <div class="flex flex-wrap gap-2 text-sm">
+                <a th:href="@{/exports/recap-paie(mois=${#temporals.format(recap.moisPrecedent.plusMonths(1), 'yyyy-MM')})}"
+                   class="rounded-md bg-slate-900 px-3 py-1 font-medium text-white transition hover:bg-slate-700">⬇ Exporter pour le comptable (CSV)</a>
+                <a th:href="@{/pointages/mois(mois=${recap.moisPrecedent})}"
+                   class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">← Mois précédent</a>
+                <a th:href="@{/pointages/mois}"
+                   class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Ce mois</a>
+                <a th:href="@{/pointages/mois(mois=${recap.moisSuivant})}"
+                   class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Mois suivant →</a>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50">
+                <tr>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Employé</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">Heures travaillées</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">dont nuit</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">HS +10 %</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">HS +20 %</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">HS +50 %</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">H. compl. +10 %</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">H. compl. +25 %</th>
+                    <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">Repos nuit</th>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Fériés travaillés</th>
+                    <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">À vérifier</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                <tr th:each="ligne : ${recap.lignes}" class="hover:bg-slate-50">
+                    <td class="px-4 py-3">
+                        <a th:href="@{/pointages/semaine/{id}(id=${ligne.employeId})}" th:text="${ligne.nom}"
+                           class="font-medium text-slate-900 underline decoration-slate-300 underline-offset-2 transition hover:decoration-slate-900"></a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-slate-900" th:text="${ligne.total}"></td>
+                    <td class="px-4 py-3 text-right text-slate-600" th:text="${ligne.totalNuit}"></td>
+                    <td class="px-4 py-3 text-right text-slate-600" th:text="${ligne.heuresSup10}"></td>
+                    <td class="px-4 py-3 text-right text-slate-600" th:text="${ligne.heuresSup20}"></td>
+                    <td class="px-4 py-3 text-right text-slate-600" th:text="${ligne.heuresSup50}"></td>
+                    <td class="px-4 py-3 text-right text-slate-600" th:text="${ligne.heuresComplementaires10}"></td>
+                    <td class="px-4 py-3 text-right text-slate-600" th:text="${ligne.heuresComplementaires25}"></td>
+                    <td class="px-4 py-3 text-right text-slate-600" th:text="${ligne.reposNuit}"></td>
+                    <td class="px-4 py-3 text-slate-600" th:text="${ligne.feriesTravailles}"></td>
+                    <td class="px-4 py-3 text-amber-700"
+                        th:text="${ligne.pointagesOuverts > 0 ? ligne.pointagesOuverts + ' pointage(s) sans sortie, non compté(s)' : ''}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="border-t border-slate-200 px-4 py-2 text-xs text-slate-400">
+            Chaque pointage compte dans le mois de sa date d'entrée. Les heures sup et complémentaires se calculent à la semaine :
+            une semaine à cheval sur deux mois compte entièrement dans le mois de son lundi.
+            HS = heures sup au-delà de 35h (convention HCR : +10 % de la 36e à la 39e, +20 % de la 40e à la 43e, +50 % au-delà) ;
+            pour un contrat de 39h, les 4 premières heures sup sont celles prévues au contrat.
+            H. compl. = heures complémentaires d'un temps partiel, entre le contrat et 35h (+10 % jusqu'au 1/10 du contrat, +25 % au-delà).
+            Repos nuit = repos compensateur des travailleurs de nuit (1 % des heures de nuit, semaines où l'employé a fait au moins 2 fois 3h entre 22h et 7h).
+            Fériés travaillés : le 1er mai est payé double ; les autres jours fériés sont à compenser pour les salariés ayant au moins un an d'ancienneté.
+            Volumes d'heures uniquement : le calcul des montants relève de la paie.
+        </p>
+    </div>
+</main>
+</div>
+</body>
+</html>

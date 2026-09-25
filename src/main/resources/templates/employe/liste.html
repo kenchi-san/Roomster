@@ -51,6 +51,7 @@
                 <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Poste</th>
                 <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Contrat</th>
                 <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Date d'entrée</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Naissance</th>
                 <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Actif</th>
                 <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Actions</th>
             </tr>
@@ -91,6 +92,11 @@
                     <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
                            data-field="dateEntree" type="date" th:value="${employe.dateEntree}"
                            th:attr="max=${employe.dateSortie}">
+                </td>
+                <td class="px-4 py-3">
+                    <span data-view="dateNaissance" th:text="${employe.dateNaissance ?: '—'}" class="text-slate-600"></span>
+                    <input class="edit hidden w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                           data-field="dateNaissance" type="date" th:value="${employe.dateNaissance}">
                 </td>
                 <td class="px-4 py-3">
                     <span data-view="actif" th:text="${employe.actif} ? 'Oui' : 'Non'"

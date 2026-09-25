@@ -1,0 +1,101 @@
+<!-- Vue semaine d'un employé, utilisée par /mon-pointage et /pointages/semaine/{id}.
+     urlPage : l'adresse de la page qui affiche la vue, pour construire les liens de navigation. -->
+<div th:fragment="semaine(semaine, urlPage)"
+     class="rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+        <p class="text-sm font-medium text-slate-900"
+           th:text="'Du ' + ${#temporals.format(semaine.lundi, 'dd/MM/yyyy')} + ' au ' + ${#temporals.format(semaine.dimanche, 'dd/MM/yyyy')}"></p>
+        <div class="flex gap-2 text-sm">
+            <a th:href="@{${urlPage}(semaine=${semaine.semainePrecedente})}"
+               class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">← Semaine précédente</a>
+            <a th:href="@{${urlPage}}"
+               class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Cette semaine</a>
+            <a th:href="@{${urlPage}(semaine=${semaine.semaineSuivante})}"
+               class="rounded-md border border-slate-300 px-3 py-1 font-medium text-slate-700 transition hover:bg-slate-100">Semaine suivante →</a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+            <tr>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Jour</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Pointages</th>
+                <th scope="col" class="px-4 py-3 text-right font-semibold text-slate-600">Total</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            <tr th:each="jour : ${semaine.jours}" th:classappend="${jour.aujourdhui} ? 'bg-sky-50'">
+                <td class="whitespace-nowrap px-4 py-3 align-top font-medium text-slate-900">
+                    <span class="capitalize" th:text="${jour.libelle}"></span>
+                    <span th:if="${jour.ferie != null}" th:text="${jour.ferie}"
+                          class="ml-1 rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-800"></span>
+                </td>
+                <td class="px-4 py-3 text-slate-600">
+                    <span th:if="${jour.lignes.isEmpty()}" class="text-slate-400">—</span>
+                    <p th:each="ligne : ${jour.lignes}" th:text="${ligne}"></p>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-right align-top text-slate-900" th:text="${jour.lignes.isEmpty() ? '' : jour.total}"></td>
+            </tr>
+            </tbody>
+            <tfoot class="bg-slate-50">
+            <tr>
+                <td class="px-4 py-3 font-semibold text-slate-900" colspan="2">Total de la semaine</td>
+                <td class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-900" th:text="${semaine.total}"></td>
+            </tr>
+            <tr>
+                <td class="px-4 py-2 text-slate-600" colspan="2">dont heures de nuit (22h → 7h)</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-600" th:text="${semaine.totalNuit}"></td>
+            </tr>
+            <tr>
+                <td class="px-4 py-2 text-slate-600" colspan="2">Durée du contrat</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-600" th:text="${semaine.contrat}"></td>
+            </tr>
+            <!-- Travail de nuit : au moins 2 jours avec 3h ou plus entre 22h et 7h -->
+            <tr th:if="${semaine.travailleurDeNuit}">
+                <td class="px-4 py-2 text-slate-600" colspan="2">Travailleur de nuit cette semaine : repos compensateur (1 % des heures de nuit)</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-900" th:text="${semaine.reposNuit}"></td>
+            </tr>
+            <!-- Temps partiel : heures entre le contrat et 35h -->
+            <tr th:if="${semaine.tempsPartiel}">
+                <td class="px-4 py-2 text-slate-600" colspan="2">Heures complémentaires +10 % (jusqu'au 1/10 du contrat)</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-900" th:text="${semaine.heuresComplementaires10}"></td>
+            </tr>
+            <tr th:if="${semaine.tempsPartiel}">
+                <td class="px-4 py-2 text-slate-600" colspan="2">Heures complémentaires +25 % (au-delà)</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-900" th:text="${semaine.heuresComplementaires25}"></td>
+            </tr>
+            <!-- Heures sup : à partir de la 36e heure, quel que soit le contrat (convention HCR) -->
+            <tr>
+                <td class="px-4 py-2 text-slate-600" colspan="2">Heures sup +10 % (36e → 39e heure)</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-900" th:text="${semaine.heuresSup10}"></td>
+            </tr>
+            <tr>
+                <td class="px-4 py-2 text-slate-600" colspan="2">Heures sup +20 % (40e → 43e heure)</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-900" th:text="${semaine.heuresSup20}"></td>
+            </tr>
+            <tr>
+                <td class="px-4 py-2 text-slate-600" colspan="2">Heures sup +50 % (à partir de la 44e heure)</td>
+                <td class="whitespace-nowrap px-4 py-2 text-right text-slate-900" th:text="${semaine.heuresSup50}"></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- Alertes de conformité HCR (durées maximales, repos, mineurs) -->
+    <div th:unless="${semaine.alertes.isEmpty()}" class="border-t border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p class="font-semibold">⚠ Convention HCR</p>
+        <p th:each="alerte : ${semaine.alertes}" th:text="${alerte}" class="mt-1"></p>
+    </div>
+    <!-- Informations pour la paie (jours fériés travaillés) -->
+    <div th:unless="${semaine.infosPaie.isEmpty()}" class="border-t border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-900">
+        <p class="font-semibold">Pour la paie</p>
+        <p th:each="info : ${semaine.infosPaie}" th:text="${info}" class="mt-1"></p>
+    </div>
+    <p class="border-t border-slate-200 px-4 py-2 text-xs text-slate-400">
+        Un pointage dure 12h au maximum : sans pointage de sortie, il est clôturé automatiquement 12h après l'entrée (à valider par le manager).
+        Chaque pointage s'affiche le jour de son entrée. Les totaux de la semaine sont coupés à minuit :
+        un service du dimanche 22h au lundi 6h compte 2h dans une semaine et 6h dans la suivante.
+        Les pointages sans sortie ne sont pas inclus dans les totaux. Calcul à la minute, sans arrondi.
+        Les heures sup commencent à la 36e heure : pour un contrat de 39h, les heures 36 à 39 sont des heures sup déjà prévues (et payées) au contrat.
+    </p>
+</div>

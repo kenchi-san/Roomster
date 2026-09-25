@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Semaine de pointage</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-slate-50">
+<div class="flex min-h-screen">
+<aside th:replace="~{fragments/nav :: nav}"></aside>
+
+<main class="mx-auto max-w-4xl flex-1 px-4 py-8">
+    <a th:href="@{/pointages}" class="text-sm font-medium text-slate-500 transition hover:text-slate-900">← Retour aux pointages</a>
+    <h1 class="mt-2 text-2xl font-bold text-slate-900"
+        th:text="${employe.user.prenom + ' ' + employe.user.nom}"></h1>
+
+    <div th:replace="~{fragments/messages :: messages}"></div>
+
+    <div class="mt-6"
+         th:insert="~{fragments/semaine-pointages :: semaine(${semaine}, '/pointages/semaine/' + ${employe.id})}"></div>
+
+    <!-- Report des heures sup de la semaine au compteur (F5) -->
+    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+        <form th:if="${semaine.heuresSupReportables}" method="post"
+              th:action="@{/pointages/semaine/{id}/reporter-heures-sup(id=${employe.id}, semaine=${semaine.lundi})}">
+            <button type="submit"
+                    class="rounded-md bg-slate-900 px-4 py-2 font-medium text-white transition hover:bg-slate-700"
+                    th:text="'Reporter les heures sup au compteur (' + ${semaine.heuresSupAuCompteur} + ')'"></button>
+        </form>
+        <p th:if="${semaine.heuresSupDejaReportees}" class="text-emerald-700">
+            ✓ Les heures sup de cette semaine ont été reportées au compteur.
+        </p>
+        <p th:unless="${semaine.heuresSupReportables or semaine.heuresSupDejaReportees}" class="text-slate-400">
+            Report automatique 7 jours après la fin de la semaine (sans pointage ouvert) ; ce bouton permet de le faire tout de suite.
+            Seules les heures au-delà du contrat et de 35h vont au compteur. Un pointage corrigé après le report est régularisé automatiquement.
+            Les heures complémentaires d'un temps partiel sont payées, elles ne vont pas au compteur.
+        </p>
+    </div>
+
+    <!-- Traçabilité des corrections (F2) -->
+    <h2 class="mt-10 text-xl font-bold text-slate-900">Corrections de pointage</h2>
+    <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+            <tr>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Le</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Par</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Avant</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Après</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-600">Motif</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            <tr th:each="c : ${corrections}">
+                <td class="whitespace-nowrap px-4 py-3 text-slate-900" th:text="${#temporals.format(c.date, 'dd/MM/yyyy HH:mm')}"></td>
+                <td class="px-4 py-3 text-slate-600" th:text="${c.auteur}"></td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-500"
+                    th:text="${#temporals.format(c.ancienneEntree, 'dd/MM HH:mm')} + ' → ' + ${c.ancienneSortie != null ? #temporals.format(c.ancienneSortie, 'dd/MM HH:mm') : '…'}"></td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-900"
+                    th:text="${#temporals.format(c.nouvelleEntree, 'dd/MM HH:mm')} + ' → ' + ${c.nouvelleSortie != null ? #temporals.format(c.nouvelleSortie, 'dd/MM HH:mm') : '…'}"></td>
+                <td class="px-4 py-3 text-slate-600" th:text="${c.commentaire}"></td>
+            </tr>
+            <tr th:if="${corrections.isEmpty()}">
+                <td class="px-4 py-3 text-slate-400" colspan="5">Aucune correction pour cet employé.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</div>
+</body>
+</html>

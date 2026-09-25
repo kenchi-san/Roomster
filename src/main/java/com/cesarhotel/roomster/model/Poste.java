@@ -6,6 +6,7 @@ public enum Poste {
         CUISINE,
         SALLE,
         MAINTENANCE,
-        DIRECTION
+        DIRECTION,
+        VEILLEUR_NUIT
 
 }

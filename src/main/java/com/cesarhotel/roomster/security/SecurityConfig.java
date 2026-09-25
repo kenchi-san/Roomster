@@ -28,9 +28,12 @@ public class SecurityConfig {
                         .requestMatchers("/liste-employe", "/ajout-employe",
                                 "/edit-employe/**", "/toggle-actif-employe/**",
                                 "/reset-password-employe/**",
-                                "/pointages", "/pointer-employe/**", "/conge-paye").hasRole("ADMIN")
+                                "/pointages", "/pointages/**", "/pointer-employe/**", "/conge-paye",
+                                "/compteurs/**", "/demandes", "/demandes/**", "/tableau-de-bord",
+                                "/planning", "/planning/**", "/exports", "/exports/**", "/parametres").hasRole("ADMIN")
                         // Espace personnel : accessible à tout utilisateur connecté (admin compris).
-                        .requestMatchers("/mon-pointage", "/mon-pointage/**", "/mes-conges", "/mon-compte").authenticated()
+                        .requestMatchers("/mon-pointage", "/mon-pointage/**", "/mes-conges", "/mon-compte",
+                                "/mes-demandes", "/mes-demandes/**", "/mon-planning").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form.permitAll())
                 .logout(logout -> logout.permitAll())

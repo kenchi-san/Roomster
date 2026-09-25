@@ -1,4 +1,13 @@
 -- Réinitialise les données de démo à chaque démarrage (la base est maintenant persistée sur disque)
+
+-- Hibernate crée la colonne "poste" avec un type ENUM figé sur les valeurs connues à la création de la table,
+-- et ddl-auto=update ne le met jamais à jour. On la repasse en texte pour accepter les postes ajoutés depuis
+-- (ex : VEILLEUR_NUIT). Sans effet si la colonne est déjà en texte.
+ALTER TABLE employe ALTER COLUMN poste VARCHAR(30);
+
+DELETE FROM creneau_planning;
+DELETE FROM mouvement_compteur;
+DELETE FROM correction_pointage;
 DELETE FROM demande_absence;
 DELETE FROM pointage;
 DELETE FROM compteur_employe;
@@ -22,21 +31,23 @@ ALTER TABLE users ALTER COLUMN id RESTART WITH 9;
 
 -- Employés
 -- duree_hebdo_contrat est un java.time.Duration, persisté par Hibernate en nanosecondes (BIGINT)
-INSERT INTO employe (id, user_id, poste, type_contrat, date_entree, date_sortie, duree_hebdo_contrat, actif) VALUES
-    (1, 1, 'RECEPTION', 'CDI', '2020-01-15', NULL, 126000000000000, true),
-    (2, 2, 'HOUSEKEEPING', 'CDI', '2019-03-01', NULL, 126000000000000, true),
-    (3, 3, 'CUISINE', 'CDD', '2023-06-01', NULL, 140400000000000, true),
-    (4, 4, 'DIRECTION', 'CDI', '2015-09-01', NULL, 126000000000000, true),
-    (5, 5, 'MAINTENANCE', 'EXTRA', '2024-01-10', NULL, 72000000000000, true),
-    (6, 6, 'SALLE', 'APPRENTI', '2025-09-01', NULL, 108000000000000, true),
-    (7, 7, 'RECEPTION', 'CDD', '2024-04-01', '2026-06-30', 126000000000000, false),
-    (8, 8, 'HOUSEKEEPING', 'CDI', '2021-11-08', NULL, 126000000000000, true);
+-- date_naissance : facultative ; Camille (apprentie) a moins de 18 ans, pour tester les règles des mineurs
+INSERT INTO employe (id, user_id, poste, type_contrat, date_entree, date_sortie, duree_hebdo_contrat, actif, date_naissance) VALUES
+    (1, 1, 'RECEPTION', 'CDI', '2020-01-15', NULL, 126000000000000, true, NULL),
+    (2, 2, 'HOUSEKEEPING', 'CDI', '2019-03-01', NULL, 126000000000000, true, NULL),
+    (3, 3, 'CUISINE', 'CDD', '2023-06-01', NULL, 140400000000000, true, NULL),
+    (4, 4, 'DIRECTION', 'CDI', '2015-09-01', NULL, 126000000000000, true, NULL),
+    (5, 5, 'MAINTENANCE', 'EXTRA', '2024-01-10', NULL, 72000000000000, true, NULL),
+    (6, 6, 'SALLE', 'APPRENTI', '2025-09-01', NULL, 108000000000000, true, '2009-03-15'),
+    (7, 7, 'RECEPTION', 'CDD', '2024-04-01', '2026-06-30', 126000000000000, false, NULL),
+    (8, 8, 'HOUSEKEEPING', 'CDI', '2021-11-08', NULL, 126000000000000, true, NULL);
 
 -- Les id ci-dessus sont fixés explicitement : on doit resynchroniser le compteur IDENTITY
 -- sinon les prochains employés créés via l'appli entrent en collision avec un id déjà pris.
 ALTER TABLE employe ALTER COLUMN id RESTART WITH 9;
 
--- Compteurs annuels (congés payés / RTT / heures sup)
+-- Compteurs (congés payés / RTT / heures sup), un par période de référence :
+-- annee = année où commence la période (2026 = du 1er juin 2026 au 31 mai 2027)
 -- heures_sup_cumulees en nanosecondes : 2700000000000=45min, 5400000000000=1h30, 7200000000000=2h,
 -- 10800000000000=3h, 18000000000000=5h, 26100000000000=7h15
 INSERT INTO compteur_employe (employe_id, annee, solde_conges_payes, solde_rtt, heures_sup_cumulees) VALUES
@@ -70,3 +81,43 @@ INSERT INTO pointage (employe_id, entree, sortie, commentaire) VALUES
     (6, '2026-07-24 09:15:00', '2026-07-24 13:00:00', 'Demi-journée, formation l''après-midi'),
     (8, '2026-07-22 07:45:00', '2026-07-22 15:50:00', NULL),
     (4, '2026-07-24 08:30:00', NULL, NULL);
+
+-- Planning de démo : semaine en cours et semaine suivante, calculées à partir de la date du jour
+-- (LUNDI = lundi de la semaine en cours : DATEADD('DAY', 1 - ISO_DAY_OF_WEEK(CURRENT_DATE), CURRENT_DATE)).
+-- Jean à la réception le matin, Emma le soir, Paul en cuisine, Marie au ménage, Lucas en maintenance ;
+-- Camille (apprentie mineure) a un créneau jusqu'à minuit le samedi pour montrer l'alerte HCR.
+INSERT INTO creneau_planning (employe_id, jour, debut, fin, note)
+SELECT e.employe_id, DATEADD('DAY', 1 - ISO_DAY_OF_WEEK(CURRENT_DATE) + e.decalage, CURRENT_DATE), e.debut, e.fin, e.note
+FROM (VALUES
+    (1, 0, TIME '07:00', TIME '15:00', NULL), (1, 1, TIME '07:00', TIME '15:00', NULL), (1, 2, TIME '07:00', TIME '15:00', NULL),
+    (1, 3, TIME '07:00', TIME '15:00', NULL), (1, 4, TIME '07:00', TIME '14:00', NULL),
+    (8, 0, TIME '14:30', TIME '22:30', NULL), (8, 1, TIME '14:30', TIME '22:30', NULL), (8, 2, TIME '14:30', TIME '22:30', NULL),
+    (8, 5, TIME '14:30', TIME '22:30', NULL), (8, 6, TIME '14:30', TIME '22:30', NULL),
+    (3, 1, TIME '09:00', TIME '15:00', 'Service du midi'), (3, 1, TIME '18:00', TIME '23:00', 'Service du soir'),
+    (3, 2, TIME '09:00', TIME '15:00', 'Service du midi'), (3, 2, TIME '18:00', TIME '23:00', 'Service du soir'),
+    (3, 4, TIME '09:00', TIME '15:00', 'Service du midi'), (3, 4, TIME '18:00', TIME '23:00', 'Service du soir'),
+    (3, 5, TIME '09:00', TIME '15:00', 'Service du midi'),
+    (2, 0, TIME '08:00', TIME '15:00', NULL), (2, 2, TIME '08:00', TIME '15:00', NULL), (2, 3, TIME '08:00', TIME '15:00', NULL),
+    (2, 4, TIME '08:00', TIME '15:00', NULL), (2, 5, TIME '08:00', TIME '15:00', NULL),
+    (5, 1, TIME '22:00', TIME '06:00', 'Astreinte de nuit'), (5, 3, TIME '22:00', TIME '06:00', 'Astreinte de nuit'),
+    (6, 2, TIME '17:00', TIME '23:00', NULL), (6, 5, TIME '17:00', TIME '00:00', 'Soirée privée'),
+    (4, 0, TIME '09:00', TIME '17:00', NULL), (4, 1, TIME '09:00', TIME '17:00', NULL), (4, 2, TIME '09:00', TIME '17:00', NULL),
+    (4, 3, TIME '09:00', TIME '17:00', NULL), (4, 4, TIME '09:00', TIME '17:00', NULL),
+    (1, 7, TIME '07:00', TIME '15:00', NULL), (1, 8, TIME '07:00', TIME '15:00', NULL), (8, 7, TIME '14:30', TIME '22:30', NULL)
+) AS e(employe_id, decalage, debut, fin, note);
+
+-- Absences de démo sur la semaine en cours (mêmes dates relatives que le planning) :
+-- Marie en congé payé jeudi-vendredi alors qu'elle est planifiée (montre le "conflit"),
+-- Lucas en RTT samedi, Paul en maladie dimanche, Emma avec un CP encore en attente lundi-mardi prochains.
+INSERT INTO demande_absence (employe_id, type, debut, fin, statut, date_soumission, date_decision, validateur_id, motif_refus)
+SELECT a.employe_id, a.type,
+       DATEADD('DAY', 1 - ISO_DAY_OF_WEEK(CURRENT_DATE) + a.du, CURRENT_DATE),
+       DATEADD('DAY', 1 - ISO_DAY_OF_WEEK(CURRENT_DATE) + a.au, CURRENT_DATE),
+       a.statut, CURRENT_TIMESTAMP, CASE WHEN a.statut = 'VALIDEE' THEN CURRENT_TIMESTAMP END,
+       CASE WHEN a.statut = 'VALIDEE' THEN 4 END, NULL
+FROM (VALUES
+    (2, 'CONGE_PAYE', 3, 4, 'VALIDEE'),
+    (5, 'RTT', 5, 5, 'VALIDEE'),
+    (3, 'MALADIE', 6, 6, 'VALIDEE'),
+    (8, 'CONGE_PAYE', 7, 8, 'SOUMISE')
+) AS a(employe_id, type, du, au, statut);
